@@ -1,8 +1,6 @@
 rethinkdbdash
 -------------
 
-<a href="https://app.wercker.com/project/bykey/10e69719c2031f4995798ddb9221c398"><img alt="Wercker status" src="https://app.wercker.com/status/10e69719c2031f4995798ddb9221c398/m/master" align="right" /></a>
-
 A Node.js driver for RethinkDB with more advanced features.
 
 ### Install
@@ -473,7 +471,7 @@ the query to the server if possible.
 #### Performance
 
 The tree representation of the query is built step by step and stored which avoid
-recomputing it if the query is re-run.  
+recomputing it if the query is re-run.
 
 The code was partially optimized for v8, and is written in pure JavaScript which avoids
 errors like [issue #2839](https://github.com/rethinkdb/rethinkdb/issues/2839)
@@ -498,7 +496,7 @@ mocha --harmony-generators long_test/static.js -t 50000
 
 Tests are also being run on [wercker](http://wercker.com/):
 - Builds: [https://app.wercker.com/#applications/52dffe8ba4acb3ef16010ef8/tab](https://app.wercker.com/#applications/52dffe8ba4acb3ef16010ef8/tab)
-- Box: 
+- Box:
   - Github: [https://github.com/neumino/box-rethinkdbdash](https://github.com/neumino/box-rethinkdbdash)
   - Wercker builds: [https://app.wercker.com/#applications/52dffc65a4acb3ef16010b60/tab](https://app.wercker.com/#applications/52dffc65a4acb3ef16010b60/tab)
 
