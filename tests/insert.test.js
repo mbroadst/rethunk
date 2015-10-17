@@ -10,16 +10,15 @@ describe('#insert', function() {
   afterEach(function() { return test.cleanTables(); });
 
   describe('errors', function() {
-    afterEach(function() { return test.cleanTables(); });
     it('should throw if no argument is given', function() {
       expect(function() {
         return test.table.insert();
       }).to.throw(/takes at least 1 argument, 0 provided/);
     });
 
-    it('should throw given a non-valid option', function() {
+    it('should throw given invalid options', function() {
       expect(function() {
-        return test.table.insert({}, { nonValidKey: true });
+        return test.table.insert({}, { invalidKey: true });
       }).to.throw(/Unrecognized option/);
     });
   });
