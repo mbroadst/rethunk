@@ -1,6 +1,5 @@
 "use strict";
-var Promise = require('bluebird'),
-    TestFixture = require('./support'),
+var TestFixture = require('./support'),
     r = TestFixture.r,
     expect = require('chai').expect;
 
