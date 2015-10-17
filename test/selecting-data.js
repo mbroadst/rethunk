@@ -33,18 +33,6 @@ It('Init for `selecting-data.js`', function* (done) {
   }
 })
 
-It('`db` should work', function* (done) {
-  try {
-    result = yield r.db(dbName).info().run();
-    assert.equal(result.name, dbName);
-    assert.equal(result.type, 'DB');
-
-    done();
-  }
-  catch(e) {
-    done(e);
-  }
-})
 
 It('`table` should work', function* (done) {
   try {
