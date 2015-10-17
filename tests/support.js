@@ -1,9 +1,12 @@
 "use strict";
 var uuid = require('uuid'),
-    expect = require('chai').expect,
+    chai = require('chai'),
+    expect = chai.expect,
 
     config = require('./config.js'),
     r = require('../lib')(config);
+
+chai.use(require('chai-as-promised'));
 
 function TestFixture() {}
 TestFixture.prototype.setup = function() {
