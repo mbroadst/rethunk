@@ -12,7 +12,7 @@ jshint:
 fixjsstyle:
 	fixjsstyle -r lib -r test --strict --jslint_error=all
 
-test: jshint
+test:
 	$(NPM_BIN)/mocha --globals setImmediate,clearImmediate --check-leaks --colors -t 10000 --reporter $(REPORTER) $(TESTS) $(GREPARG)
 
 .PHONY: jshint fixjsstyle test
