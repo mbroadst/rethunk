@@ -1,5 +1,9 @@
-rethinkdbdash
+rethunk
 -------------
+[![Build Status](https://secure.travis-ci.org/mbroadst/rethunk.svg?branch=master)](https://travis-ci.org/mbroadst/rethunk)
+[![Dependency Status](https://david-dm.org/mbroadst/rethunk.svg)](https://david-dm.org/mbroadst/rethunk)
+[![Code Climate](https://codeclimate.com/github/mbroadst/rethunk/badges/gpa.svg)](https://codeclimate.com/github/mbroadst/rethunk)
+[![Test Coverage](https://codeclimate.com/github/mbroadst/rethunk/badges/coverage.svg)](https://codeclimate.com/mbroadst/rethunk/node-amqp10)
 
 A Node.js driver for RethinkDB with more advanced features.
 
