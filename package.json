@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --check-leaks -t 20000"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
@@ -25,10 +25,13 @@
     "url": "https://github.com/neumino/rethinkdbdash/issues"
   },
   "dependencies":{
-    "bluebird": ">= 2.0.0"
+    "bluebird": "^2.10.2"
   },
   "devDependencies": {
-    "mocha": ">= 1.20.0",
-    "dev-null": ">= 0.1.1"
+    "chai": "^3.3.0",
+    "dev-null": "^0.1.1",
+    "jshint": "^2.6.0",
+    "mocha": "^2.3.3",
+    "uuid": "^2.0.1"
   }
 }
