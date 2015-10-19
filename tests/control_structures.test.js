@@ -257,5 +257,4 @@ describe('Control Structures', function() {
       return r.uuid().then(function(result) { expect(result).to.be.a('string'); });
     });
   });
-
 });
