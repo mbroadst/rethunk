@@ -16,7 +16,8 @@ describe('Administration', function() {
       .then(function(result) {
         expect(result.inserted).to.equal(100);
         test.pks = result.generated_keys;
-      });
+      })
+      .then(function() { return test.table.wait(); });
   });
 
   describe('#config', function() {
