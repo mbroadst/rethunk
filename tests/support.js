@@ -9,6 +9,10 @@ var uuid = require('uuid'),
 chai.use(require('chai-as-promised'));
 
 function TestFixture() {}
+TestFixture.prototype.uuid = function() {
+  return (uuid.v4()).replace(/-/g, '');
+};
+
 TestFixture.prototype.setup = function() {
   this._dbName = (uuid.v4()).replace(/-/g, '');
   this._tableName = (uuid.v4()).replace(/-/g, '');
