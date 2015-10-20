@@ -160,7 +160,7 @@ describe('Geospacial Commands', function() {
     it('should work', function() {
       // All points are in [0,1]x[0,1]
       return test.table.getNearest(r.point(0, 0), { index: "location", maxResults: 5 })
-        .then(function(result) { expect(result).to.be.below(5); });
+        .then(function(result) { expect(result.length).to.be.at.most(5); });
     });
 
     it('should throw if given too few arguments', function() {
