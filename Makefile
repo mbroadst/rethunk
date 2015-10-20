@@ -13,9 +13,9 @@ fixjsstyle:
 	fixjsstyle -r lib -r test --strict --jslint_error=all
 
 coverage:
-	$(NPM_BIN)/istanbul cover $(NPM_BIN)/_mocha --report lcovonly -- --recursive -t 10000 --ui tdd $(TESTS)
+	$(NPM_BIN)/istanbul cover $(NPM_BIN)/_mocha --report lcovonly -- --recursive -t 20000 --ui tdd $(TESTS)
 
 test:
-	$(NPM_BIN)/mocha --globals setImmediate,clearImmediate --check-leaks --colors -t 10000 --reporter $(REPORTER) $(TESTS) $(GREPARG)
+	$(NPM_BIN)/mocha --globals setImmediate,clearImmediate --check-leaks --colors -t 20000 --reporter $(REPORTER) $(TESTS) $(GREPARG)
 
 .PHONY: jshint fixjsstyle coverage codeclimate-send test
