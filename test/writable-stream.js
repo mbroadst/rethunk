@@ -1,30 +1,30 @@
 var config = require('./config.js');
 var r = require('../lib')(config);
-var util = require(__dirname+'/util/common.js');
+var util = require(__dirname + '/util/common.js');
 var assert = require('assert');
 var Readable = require('stream').Readable;
 var _util = require('util');
 
 var uuid = util.uuid;
-var It = util.It
+var It = util.It;
 
 var dbName, tableName, tableName2, stream, result, pks, feed;
 
-var numDocs = 100; // Number of documents in the "big table" used to test the SUCCESS_PARTIAL 
+var numDocs = 100; // Number of documents in the "big table" used to test the SUCCESS_PARTIAL
 
 // TODO: Tests are flaky with a slow server. Rewrite them with a fake server.
-It('Init for `writable-stream.js`', function* (done) {
+It('Init for `writable-stream.js`', function*(done) {
   try {
     dbName = uuid();
     tableName = uuid(); // Big table to test partial sequence
     dumpTable = uuid(); // dump table
 
-    result = yield r.dbCreate(dbName).run()
+    result = yield r.dbCreate(dbName).run();
     assert.equal(result.dbs_created, 1);
     //yield r.db(dbName).wait().run()
-    result = yield [
-      r.db(dbName).tableCreate(tableName)('tables_created').run(),
-      r.db(dbName).tableCreate(dumpTable)('tables_created').run()]
+    result = yield[
+        r.db(dbName).tableCreate(tableName)('tables_created').run(),
+    r.db(dbName).tableCreate(dumpTable)('tables_created').run()]
     assert.deepEqual(result, [1, 1]);
     done();
   }

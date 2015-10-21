@@ -10,12 +10,12 @@ jshint:
 	$(NPM_BIN)/jshint lib tests
 
 fixjsstyle:
-	fixjsstyle -r lib -r test --strict --jslint_error=all
+	fixjsstyle -r lib/ -r test/ --strict --jslint_error=all
 
-coverage:
+coverage: jshint
 	$(NPM_BIN)/istanbul cover $(NPM_BIN)/_mocha --report lcovonly -- --recursive -t 20000 --ui tdd $(TESTS)
 
-test:
+test: jshint
 	$(NPM_BIN)/mocha --globals setImmediate,clearImmediate --check-leaks --colors -t 20000 --reporter $(REPORTER) $(TESTS) $(GREPARG)
 
-.PHONY: jshint fixjsstyle coverage codeclimate-send test
+.PHONY: jshint fixjsstyle coverage test

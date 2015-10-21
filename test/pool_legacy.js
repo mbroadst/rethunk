@@ -1,6 +1,6 @@
-var config = require(__dirname+'/config.js');
-var r = require(__dirname+'/../lib')({pool: false, silent: true});
-var util = require(__dirname+'/util/common.js');
+var config = require(__dirname + '/config.js');
+var r = require(__dirname + '/../lib')({pool: false, silent: true});
+var util = require(__dirname + '/util/common.js');
 var assert = require('assert');
 var Promise = require('bluebird');
 
@@ -20,32 +20,32 @@ var options = {
   silent: true
 };
 
-It('`createPool` should create a PoolMaster and `getPoolMaster` should return it', function* (done) {
+It('`createPool` should create a PoolMaster and `getPoolMaster` should return it', function*(done) {
   try {
     r = r.createPools(options);
     assert(r.getPoolMaster(config));
-    assert.equal(r.getPoolMaster().getPools().length, 1)
+    assert.equal(r.getPoolMaster().getPools().length, 1);
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
 });
 
 //TODO try to make this tests a little more deterministic
-It('`run` should work without a connection if a pool exists', function* (done) {
+It('`run` should work without a connection if a pool exists', function*(done) {
   try {
-    result = yield r.expr(1).run()
+    result = yield r.expr(1).run();
     assert.equal(result, 1);
-    done()
+    done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
 });
-It('The pool should keep a buffer', function* (done) {
+It('The pool should keep a buffer', function*(done) {
   try {
-    result = yield [r.expr(1).run(), r.expr(1).run(), r.expr(1).run(), r.expr(1).run(), r.expr(1).run()]
+    result = yield[r.expr(1).run(), r.expr(1).run(), r.expr(1).run(), r.expr(1).run(), r.expr(1).run()]
     assert.deepEqual(result, [1,1,1,1,1]);
     assert(r.getPool(0).getLength() >= options.buffer+result.length);
 

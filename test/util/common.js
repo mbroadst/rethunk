@@ -5,17 +5,17 @@ Promise.coroutine.addYieldHandler(function(yieldedValue) {
 
 
 function s4() {
-  return Math.floor((1+Math.random())*0x10000).toString(16).substring(1);
-};
+  return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+}
 
 function uuid() {
-  return s4()+s4()+s4()+s4()+s4()+s4()+s4()+s4();
+  return s4() + s4() + s4() + s4() + s4() + s4() + s4() + s4();
 }
 
 function It(testName, generatorFn) {
   it(testName, function(done) {
     Promise.coroutine(generatorFn)(done);
-  })
+  });
 }
 function sleep(timer) {
   return new Promise(function(resolve, reject) {
@@ -23,6 +23,6 @@ function sleep(timer) {
   });
 }
 
-module.exports.uuid = uuid
-module.exports.It = It
-module.exports.sleep = sleep
+module.exports.uuid = uuid;
+module.exports.It = It;
+module.exports.sleep = sleep;

@@ -1,6 +1,6 @@
-var config = require(__dirname+'/config.js');
-var r = require(__dirname+'/../lib')({pool: false, silent: true});
-var util = require(__dirname+'/util/common.js');
+var config = require(__dirname + '/config.js');
+var r = require(__dirname + '/../lib')({pool: false, silent: true});
+var util = require(__dirname + '/util/common.js');
 var assert = require('assert');
 
 var uuid = util.uuid;
@@ -9,37 +9,37 @@ var It = util.It;
 var connection; // global connection
 var dbName, tableName, result;
 
-It('Testing `run` without connection', function* (done) {
+It('Testing `run` without connection', function*(done) {
   try {
-    r.expr(1).run()
+    r.expr(1).run();
   }
-  catch(e) {
+  catch (e) {
     if (e.message === '`run` was called without a connection and no pool has been created after:\nr.expr(1)') {
-      done()
+      done();
     }
     else {
       done(e);
     }
   }
-})
-It('Testing `run` with a closed connection', function* (done) {
+});
+It('Testing `run` with a closed connection', function*(done) {
   try {
     connection = yield r.connect(config);
     assert(connection);
-    connection.close()
-    yield r.expr(1).run(connection)
+    connection.close();
+    yield r.expr(1).run(connection);
   }
-  catch(e) {
+  catch (e) {
     if (e.message === '`run` was called with a closed connection after:\nr.expr(1)') {
-      done()
+      done();
     }
     else {
       done(e);
     }
   }
-})
+});
 
-It('Init for `cursor.js`', function* (done) {
+It('Init for `cursor.js`', function*(done) {
   try {
     connection = yield r.connect(config);
     assert(connection);
@@ -54,18 +54,18 @@ It('Init for `cursor.js`', function* (done) {
     result = yield r.db(dbName).tableCreate(tableName).run(connection);
     assert.equal(result.tables_created, 1);
 
-    result = yield r.db(dbName).table(tableName).insert(eval('['+new Array(100).join('{}, ')+'{}]')).run(connection);
+    result = yield r.db(dbName).table(tableName).insert(eval('[' + new Array(100).join('{}, ') + '{}]')).run(connection);
     assert.equal(result.inserted, 100);
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
+});
 
-It('`run` should use the default database', function* (done) {
-  try{
+It('`run` should use the default database', function*(done) {
+  try {
     dbName = uuid();
     tableName = uuid();
 
@@ -81,16 +81,16 @@ It('`run` should use the default database', function* (done) {
     assert(connection);
 
     result = yield r.tableList().run(connection);
-    assert.deepEqual(result, [tableName])
+    assert.deepEqual(result, [tableName]);
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
-It('`use` should work', function* (done) {
-  try{
+});
+It('`use` should work', function*(done) {
+  try {
     dbName = uuid();
     tableName = uuid();
 
@@ -103,16 +103,16 @@ It('`use` should work', function* (done) {
     connection.use(dbName);
 
     result = yield r.tableList().run(connection);
-    assert.deepEqual(result, [tableName])
+    assert.deepEqual(result, [tableName]);
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
-It('`reconnect` should work', function* (done) {
-  try{
+});
+It('`reconnect` should work', function*(done) {
+  try {
     var result = yield r.expr(1).run(connection);
     assert.equal(result, 1);
 
@@ -124,16 +124,16 @@ It('`reconnect` should work', function* (done) {
 
 
     result = yield r.tableList().run(connection);
-    assert.deepEqual(result, [tableName])
+    assert.deepEqual(result, [tableName]);
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
-It('`reconnect` should work with options', function* (done) {
-  try{
+});
+It('`reconnect` should work with options', function*(done) {
+  try {
     var result = yield r.expr(1).run(connection);
     assert.equal(result, 1);
 
@@ -159,17 +159,17 @@ It('`reconnect` should work with options', function* (done) {
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
+});
 
 
-It('`noReplyWait` should throw', function* (done) {
-  try{
-    result = yield connection.noReplyWait()
+It('`noReplyWait` should throw', function*(done) {
+  try {
+    result = yield connection.noReplyWait();
   }
-  catch(e) {
+  catch (e) {
     if (e.message === 'Did you mean to use `noreplyWait` instead of `noReplyWait`?') {
       done();
     }
@@ -178,21 +178,21 @@ It('`noReplyWait` should throw', function* (done) {
     }
   }
 
-})
-It('`noreplyWait` should work', function* (done) {
-  try{
-    result = yield connection.noreplyWait()
+});
+It('`noreplyWait` should work', function*(done) {
+  try {
+    result = yield connection.noreplyWait();
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
+});
 
 
 
- 
-It('`run` should take an argument', function* (done) {
+
+It('`run` should take an argument', function*(done) {
   try {
     var result = yield connection.close();
     assert(connection);
@@ -220,38 +220,38 @@ It('`run` should take an argument', function* (done) {
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
+});
 
-It('`run` should throw on an unrecognized argument', function* (done) {
+It('`run` should throw on an unrecognized argument', function*(done) {
   try {
     result = yield r.expr(1).run(connection, {foo: 'bar'});
   }
-  catch(e) {
+  catch (e) {
     if (e.message === 'Unrecognized option `foo` in `run`. Available options are readMode <string>, durability <string>, noreply <bool>, timeFormat <string>, groupFormat: <string>, profile <bool>, binaryFormat <bool>, cursor <bool>, stream <bool>.') {
       done();
     }
-    else{
+    else {
       done(e);
     }
   }
-})
+});
 
 
-It('`r()` should be a shortcut for r.expr()', function* (done) {
+It('`r()` should be a shortcut for r.expr()', function*(done) {
   try {
     result = yield r(1).run(connection);
-    assert.deepEqual(result, 1)
+    assert.deepEqual(result, 1);
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
+});
 
-It('`timeFormat` should work', function* (done) {
+It('`timeFormat` should work', function*(done) {
   try {
     result = yield r.now().run(connection);
     assert(result instanceof Date);
@@ -260,66 +260,66 @@ It('`timeFormat` should work', function* (done) {
     assert(result instanceof Date);
 
     result = yield r.now().run(connection, {timeFormat: 'raw'});
-    assert.equal(result.$reql_type$, 'TIME')
+    assert.equal(result.$reql_type$, 'TIME');
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
-It('`binaryFormat` should work', function* (done) {
+});
+It('`binaryFormat` should work', function*(done) {
   try {
-    result = yield r.binary(new Buffer([1,2,3])).run(connection, {binaryFormat: 'raw'});
+    result = yield r.binary(new Buffer([1, 2, 3])).run(connection, {binaryFormat: 'raw'});
     assert.equal(result.$reql_type$, 'BINARY');
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
+});
 
-It('`groupFormat` should work', function* (done) {
+It('`groupFormat` should work', function*(done) {
   try {
     var result = yield r.expr([{name: 'Michel', grownUp: true},{name: 'Laurent', grownUp: true},
-      {name: 'Sophie', grownUp: true},{name: 'Luke', grownUp: false},{name: 'Mino', grownUp: false}]).group('grownUp').run(connection, {groupFormat: 'raw'});
+          {name: 'Sophie', grownUp: true},{name: 'Luke', grownUp: false},{name: 'Mino', grownUp: false}]).group('grownUp').run(connection, {groupFormat: 'raw'});
 
-    assert.deepEqual(result, { '$reql_type$': 'GROUPED_DATA', 'data': [ [ false, [ { 'grownUp': false, 'name': 'Luke' }, { 'grownUp': false, 'name': 'Mino' } ] ], [ true, [ { 'grownUp': true, 'name': 'Michel' }, { 'grownUp': true, 'name': 'Laurent' }, { 'grownUp': true, 'name': 'Sophie' } ] ] ] })
+    assert.deepEqual(result, { '$reql_type$': 'GROUPED_DATA', 'data': [[false, [{ 'grownUp': false, 'name': 'Luke' }, { 'grownUp': false, 'name': 'Mino' }]], [true, [{ 'grownUp': true, 'name': 'Michel' }, { 'grownUp': true, 'name': 'Laurent' }, { 'grownUp': true, 'name': 'Sophie' }]]] });
 
     done();
   }
-  catch(e) {
+  catch (e) {
     done(e);
   }
-})
+});
 
 
-It('`profile` should work', function* (done) {
-  try{
+It('`profile` should work', function*(done) {
+  try {
     result = yield r.expr(true).run(connection, {profile: false});
-    assert(result)
+    assert(result);
 
     result = yield r.expr(true).run(connection, {profile: true});
-    assert(result.profile)
-    assert.equal(result.result, true)
+    assert(result.profile);
+    assert.equal(result.result, true);
 
     result = yield r.expr(true).run(connection, {profile: false});
-    assert.equal(result, true)
+    assert.equal(result, true);
 
     done();
   }
-  catch(e){
+  catch (e) {
   }
-})
+});
 
 
-It('Test error message when running a query on a closed connection', function* (done) {
+It('Test error message when running a query on a closed connection', function*(done) {
   try {
     yield connection.close();
-    yield r.expr(1).run(connection)
+    yield r.expr(1).run(connection);
   }
-  catch(e) {
+  catch (e) {
     if (e.message.match('`run` was called with a closed connection after:')) {
       done();
     }
@@ -327,12 +327,12 @@ It('Test error message when running a query on a closed connection', function* (
       done(e);
     }
   }
-})
+});
 
-It('Test timeout', function* (done) {
+It('Test timeout', function*(done) {
   var server;
   try {
-    var port = Math.floor(Math.random()*(65535-1025)+1025)
+    var port = Math.floor(Math.random() * (65535 - 1025) + 1025);
 
     server = require('net').createServer(function(c) {
     }).listen(port);
@@ -343,16 +343,16 @@ It('Test timeout', function* (done) {
     });
     done(new Error('Was expecting an error'));
   }
-  catch(err) {
+  catch (err) {
     //close server
-    if (err.message === 'Failed to connect to localhost:'+port+' in less than 1s.') {
+    if (err.message === 'Failed to connect to localhost:' + port + ' in less than 1s.') {
       done();
     }
     else {
-      done(err)
+      done(err);
     }
   }
-})
+});
 
 
 
