@@ -25,7 +25,8 @@
     "url": "https://github.com/neumino/rethinkdbdash/issues"
   },
   "dependencies":{
-    "bluebird": "^2.10.2"
+    "bluebird": "^2.10.2",
+    "double-ended-queue": "^2.1.0-0"
   },
   "devDependencies": {
     "chai": "^3.3.0",
