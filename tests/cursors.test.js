@@ -329,6 +329,7 @@ describe('Cursors', function() {
 
 /*
   // @todo: these all belong in the "Accessing ReQL" test suite
+
     it('`on` should work on feed', function() {
       try {
         feed = yield r.db(dbName).table(tableName2).changes().run();
