@@ -8,8 +8,14 @@ var Promise = require('bluebird'),
     devNull = require('dev-null'),
     Readable = require('stream').Readable;
 
+var conditionalDescribe = describe;
+if (process.version.match(/v0.10./)) {
+  console.log('Streams are incredibly flakey on v0.10.x, skipping...');
+  conditionalDescribe = describe.skip;
+}
+
 var test = new TestFixture();
-describe('Streams', function() {
+conditionalDescribe('Streams', function() {
   before(function() { return test.setup(); });
   after(function() { return test.teardown(); });
 
