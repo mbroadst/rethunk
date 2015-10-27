@@ -1,0 +1,280 @@
+"use strict";
+var Promise = require('bluebird'),
+    TestFixture = require('./support'),
+    config = require('./config'),
+    expect = require('chai').expect;
+
+var test = new TestFixture({ pool: false }),
+    r = TestFixture.r;
+
+describe('Accessing ReQL', function() {
+  before(function() { return test.setup(); });
+  after(function() { return test.teardown(); });
+
+  describe('#r', function() {
+    it('should be a shortcut for r.expr', function() {
+      return r(1).then(function(result) { expect(result).to.equal(1); });
+    });
+  });
+
+  describe('#connect', function() {
+    it('should support a timeout', function() {
+      var port = Math.floor(Math.random() * (65535-1025) + 1025);
+      var server = require('net').createServer(function(c) {});
+      server.listen(port);
+
+      expect(r.connect({ port: port, timeout: 1 }))
+        .to.eventually.be.rejectedWith('Failed to connect to localhost:' + port + ' in less than 1s.');
+    });
+  });
+
+  describe('#close', function() {
+  });
+
+  describe('#reconnect', function() {
+    it('should work', function() {
+      return r.connect(config)
+        .then(function(connection) {
+          test.connection = connection;
+          test.connection.use(test._dbName);
+          return r.expr(1).run(test.connection);
+        })
+        .then(function(result) {
+          expect(result).to.equal(1);
+          return test.connection.close();
+        })
+        .then(function() {
+          expect(test.connection._isOpen()).to.be.false;
+          return test.connection.reconnect();
+        })
+        .then(function(connection) {
+          test.connection = connection;
+          expect(test.connection._isOpen()).to.be.true;
+          return r.tableList().run(test.connection);
+        })
+        .then(function(list) {
+          expect(list).to.eql([ test._tableName ]);
+          return test.connection.close();
+        });
+    });
+
+    it('should work with options', function() {
+      return r.connect(config)
+        .then(function(connection) {
+          test.connection = connection;
+          return r.expr(1).run(test.connection);
+        })
+        .then(function(result) {
+          expect(result).to.equal(1);
+          return test.connection.reconnect({ noreplyWait: true });
+        })
+        .then(function(connection) {
+          expect(connection).to.exist;
+          test.connection = connection;
+          return r.expr(1).run(test.connection);
+        })
+        .then(function(result) {
+          expect(result).to.equal(1);
+          return test.connection.reconnect({ noreplyWait: false });
+        })
+        .then(function(connection) {
+          expect(connection).to.exist;
+          test.connection = connection;
+          return r.expr(1).run(test.connection);
+        })
+        .then(function(result) {
+          expect(result).to.equal(1);
+          return test.connection.close();
+        });
+    });
+  });
+
+  describe('#use', function() {
+    it('should work', function() {
+      return r.connect(config)
+        .then(function(connection) {
+          connection.use(test._dbName);
+          return r.tableList().run(connection);
+        })
+        .then(function(list) {
+          expect(list).to.eql([ test._tableName ]);
+        });
+    });
+  });
+
+  describe('#run', function() {
+    it('should throw if called without a connection', function() {
+      var r1 = require('../lib')({ pool: false, silent: true });
+      var invalid = function() { return r1.expr(1).run(); };
+      expect(invalid).to.throw(/`run` was called without a connection/);
+    });
+
+    it('should throw if called with a closed connection', function() {
+      var r1 = require('../lib')({ pool: false, silent: true });
+      return r1.connect(config)
+        .then(function(connection) {
+          test.connection = connection;
+          return connection.close();
+        })
+        .then(function() {
+          expect(r1.expr(1).run(test.connection))
+            .to.eventually.be.rejectedWith(/`run` was called with a closed connection/);
+          test.connection = undefined;
+        });
+    });
+
+    it('should use the default database', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) { return r.tableList().run(connection); })
+        .then(function(list) {
+          expect(list).to.eql([ test._tableName ]);
+        });
+    });
+
+    it('should take an argument', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          return Promise.all([
+            r.expr(1).run(connection, { readMode: 'primary' }),
+            r.expr(1).run(connection, { readMode: 'majority' }),
+            r.expr(1).run(connection, { profile: false }),
+            r.expr(1).run(connection, { profile: true }),
+            r.expr(1).run(connection, { durability: 'soft' }),
+            r.expr(1).run(connection, { durability: 'hard' })
+          ]);
+        })
+        .spread(function(r1, r2, r3, r4, r5, r6) {
+          expect(r1).to.equal(1);
+          expect(r2).to.equal(1);
+          expect(r3).to.equal(1);
+          expect(r4.profile).to.exist;
+          expect(r4.result).to.equal(1);
+          expect(r5).to.equal(1);
+          expect(r6).to.equal(1);
+        });
+    });
+
+    it('should throw on an unrecognized argument', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          expect(r.expr(1).run(connection, { foo: 'bar' }))
+            .to.eventually.be.rejectedWith(/Unrecognized option `foo` in `run`./);
+        });
+    });
+
+
+    it('`timeFormat` should work', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          test.connection = connection;
+          return r.now().run(test.connection);
+        })
+        .then(function(result) {
+          expect(result).to.be.an.instanceOf(Date);
+          return r.now().run(test.connection, { timeFormat: 'native' });
+        })
+        .then(function(result) {
+          expect(result).to.be.an.instanceOf(Date);
+          return r.now().run(test.connection, { timeFormat: 'raw' });
+        })
+        .then(function(result) {
+          expect(result.$reql_type$).to.equal('TIME');
+          return test.connection.close();
+        });
+    });
+
+    it('`binaryFormat` should work', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          test.connection = connection;
+          return r.binary(new Buffer([1, 2, 3])).run(connection, { binaryFormat: 'raw' });
+        })
+        .then(function(result) {
+          expect(result.$reql_type$).to.equal('BINARY');
+          return test.connection.close();
+        });
+    });
+
+    it('`groupFormat` should work', function() {
+      var testData = [
+        { name: 'Michel', grownUp: true }, { name: 'Laurent', grownUp: true },
+        { name: 'Sophie', grownUp: true }, { name: 'Luke', grownUp: false },
+        { name: 'Mino', grownUp: false }
+      ];
+
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          test.connection = connection;
+          return r.expr(testData).group('grownUp').run(test.connection, { groupFormat: 'raw' });
+        })
+        .then(function(result) {
+          expect(result.$reql_type$).to.equal('GROUPED_DATA');
+          expect(result.data).to.eql([
+            [ false, [ { 'grownUp': false, 'name': 'Luke' }, { 'grownUp': false, 'name': 'Mino' } ] ],
+            [ true, [ { 'grownUp': true, 'name': 'Michel' }, { 'grownUp': true, 'name': 'Laurent' }, { 'grownUp': true, 'name': 'Sophie' } ] ]
+          ]);
+
+          return test.connection.close();
+        });
+    });
+
+    it('`profile` should work', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          test.connection = connection;
+          return r.expr(true).run(connection, { profile: false });
+        })
+        .then(function(result) {
+          expect(result).to.be.true;
+          return r.expr(true).run(test.connection, { profile: true });
+        })
+        .then(function(result) {
+          expect(result.profile).to.exist;
+          expect(result.result).to.be.true;
+          return r.expr(true).run(test.connection, { profile: false });
+        })
+        .then(function(result) {
+          expect(result).to.be.true;
+          return test.connection.close();
+        });
+    });
+
+    it('should throw an error when running a query on a closed connection', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          expect(connection).to.exist;
+          test.connection = connection;
+          return test.connection.close();
+        })
+        .then(function() {
+          expect(r.expr(1).run(test.connection))
+            .to.eventually.be.rejectedWith(/`run` was called with a closed connection/);
+        });
+    });
+
+  });
+
+  describe('#changes', function() {
+  });
+
+  describe('#noreplyWait', function() {
+    it('`noReplyWait` should throw', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          var invalid = function() { return connection.noReplyWait(); };
+          expect(invalid).to.throw(/Did you mean to use `noreplyWait` instead of `noReplyWait`?/);
+        });
+    });
+
+    it('should work', function() {
+      return r.connect({ db: test._dbName, host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(connection) {
+          test.connection = connection;
+          return connection.noreplyWait();
+        });
+    });
+  });
+
+  describe('#EventEmitter (connection)', function() {
+  });
+});
