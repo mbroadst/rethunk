@@ -7,9 +7,19 @@ var Promise = require('bluebird'),
 var test = new TestFixture({ pool: false }),
     r = TestFixture.r;
 
+function generateData(test) {
+  var testData =
+      Array.apply(null, new Array(100)).map(function(a) { return { field: 0 }; });
+  return test.table.insert(testData)
+    .then(function(result) {
+      expect(result.inserted).to.equal(100);
+      test.pks = result.generated_keys;
+    });
+}
+
 describe('Accessing ReQL', function() {
-  before(function() { return test.setup(); });
   after(function() { return test.teardown(); });
+  before(function() { return test.setup(); });
 
   describe('#r', function() {
     it('should be a shortcut for r.expr', function() {
@@ -255,6 +265,113 @@ describe('Accessing ReQL', function() {
   });
 
   describe('#changes', function() {
+    afterEach(function() { return test.cleanTables(); });
+
+    it('should work with { squash: true }', function() {
+      return test.table.changes({ squash: true })
+        .then(function(feed) {
+          expect(feed).to.exist;
+          expect(feed.toString()).to.equal('[object Feed]');
+          return feed.close();
+        });
+    });
+
+    it('should work on `get` terms', function() {
+      return test.table.get(1).changes()
+        .then(function(feed) {
+          expect(feed).to.exist;
+          expect(feed.toString()).to.equal('[object AtomFeed]');
+          return feed.close();
+        });
+    });
+
+    it('should work on `orderBy().limit()`', function() {
+      return test.table.orderBy({index: 'id'}).limit(2).changes()
+        .then(function(feed) {
+          expect(feed).to.exist;
+          expect(feed.toString()).to.equal('[object OrderByLimitFeed]');
+          return feed.close();
+        });
+    });
+
+    it('should support `includeStates`', function(done) {
+      return generateData(test)
+        .then(function() {
+          return test.table.orderBy({ index: 'id' }).limit(10).changes({ includeStates: true });
+        })
+        .then(function(feed) {
+          var i = 0;
+          feed.each(function(err, change) {
+            i++;
+            if (i === 10) {
+              feed.close();
+              done();
+            }
+          });
+        });
+    });
+
+    it('should support `on`', function(done) {
+      return generateData(test)
+        .then(function() { return test.table.changes(); })
+        .then(function(feed) {
+          var i = 0;
+          feed.on('data', function() {
+            i++;
+            if (i === 100) {
+              feed.close()
+                .then(function() { done(); })
+                .error(function(error) { done(error); });
+            }
+          });
+        })
+        .delay(100)
+        .then(function() {
+          return test.table.update({ foo: r.now() });
+        });
+    });
+
+
+    it('events should not return an error if the feed is closed (1)', function(done) {
+      return test.table.get(1).changes()
+        .then(function(feed) {
+          feed.each(function(err, result) {
+            if (err) return done(err);
+            if (result.new_val !== null && result.new_val.id === 1) {
+              feed.close()
+                .then(function() { done(); })
+                .error(function(err) { done(err); });
+            }
+          });
+        })
+        .delay(100)
+        .then(function() {
+          return test.table.insert({ id: 1 });
+        });
+    });
+
+    it('events should not return an error if the feed is closed (2)', function(done) {
+      return generateData(test)
+        .then(function() { return test.table.changes(); })
+        .then(function(feed) {
+          var count = 0;
+          feed.on('data', function(result) {
+            if (result.new_val.foo instanceof Date) count++;
+            if (count === 1) {
+              setTimeout(function() {
+                feed.close()
+                  .then(function() { done(); })
+                  .error(function(err) { done(err); });
+              }, 100);
+            }
+          });
+        })
+        .delay(100)
+        .then(function() {
+          return test.table.limit(2).update({ foo: r.now() });
+        });
+    });
+
   });
 
   describe('#noreplyWait', function() {

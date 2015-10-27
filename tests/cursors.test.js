@@ -47,6 +47,32 @@ describe('Cursors', function() {
       }
     })
     */
+
+
+    it('should support importing with cursor as default', function() {
+      var r1 = require('../lib')({
+        cursor: true,
+        host: config.host, port: config.port,
+        authKey: config.authKey, buffer: config.buffer,
+        max: config.max, silent: true
+      });
+
+      return r1.db(test._dbName).table(test._tableName)
+        .then(function(cursor) {
+          expect(cursor).to.exist;
+          expect(cursor.toString()).to.equal('[object Cursor]');
+          return cursor.close();
+        });
+    });
+
+    it('`table` should return a cursor', function() {
+      return test.table.run({ cursor: true })
+        .then(function(cursor) {
+          expect(cursor).to.exist;
+          expect(cursor.toString()).to.equal('[object Cursor]');
+          return cursor.close();
+        });
+    });
   });
 
   describe('#next', function() {
@@ -325,262 +351,17 @@ describe('Cursors', function() {
     //   });
     // });
 
+    it('`on` should work on cursor - a `end` event should be eventually emitted on a cursor', function(done) {
+      return test.table.run({ cursor: true })
+        .then(function(cursor) {
+          cursor.on('end', function() { done(); });
+          cursor.on('error', function(err) { done(err); });
+        })
+        .delay(100)
+        .then(function() {
+          return test.table.update({ foo: r.now() });
+        });
+    });
   });
-
-/*
-  // @todo: these all belong in the "Accessing ReQL" test suite
-
-    it('`on` should work on feed', function() {
-      try {
-        feed = yield r.db(dbName).table(tableName2).changes().run();
-        setTimeout(function() {
-          r.db(dbName).table(tableName2).update({foo: r.now()}).run();
-        }, 100)
-        var i=0;
-        feed.on('data', function() {
-          i++;
-          if (i === smallNumDocs) {
-            feed.close().then(function() {
-              done();
-            }).error(function(error) {
-              done(error);
-            });
-          }
-        });
-        feed.on('error', function(e) {
-          done(e)
-        })
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('`on` should work on cursor - a `end` event shoul be eventually emitted on a cursor', function() {
-      try {
-        cursor = yield r.db(dbName).table(tableName2).run({cursor: true});
-        setTimeout(function() {
-          r.db(dbName).table(tableName2).update({foo: r.now()}).run();
-        }, 100)
-        cursor.on('end', function() {
-          done()
-        });
-        cursor.on('error', function(e) {
-          done(e)
-        })
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-
-    it('Import with cursor as default', function() {
-      yield util.sleep(1000);
-      var r1 = require('../lib')({cursor: true, host: config.host, port: config.port, authKey: config.authKey, buffer: config.buffer, max: config.max, silent: true});
-      var i=0;
-      try {
-        cursor = yield r1.db(dbName).table(tableName).run();
-        assert.equal(cursor.toString(), '[object Cursor]');
-        yield cursor.close();
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-
-    it('events should not return an error if the feed is closed - 1', function() {
-      try {
-        feed = yield r.db(dbName).table(tableName2).get(1).changes().run();
-        setTimeout(function() {
-          r.db(dbName).table(tableName2).insert({id: 1}).run();
-        }, 100)
-        feed.each(function(err, result) {
-          if (err) {
-            return done(err);
-          }
-          if ((result.new_val != null) && (result.new_val.id === 1)) {
-            feed.close().then(function() {
-              done();
-            }).error(done);
-          }
-        });
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('events should not return an error if the feed is closed - 2', function() {
-      try {
-        feed = yield r.db(dbName).table(tableName2).changes().run();
-        setTimeout(function() {
-          r.db(dbName).table(tableName2).limit(2).update({foo: r.now()}).run();
-        },100)
-        var count = 0;
-        feed.on('data', function(result) {
-          if (result.new_val.foo instanceof Date) {
-            count++;
-          }
-          if (count === 1) {
-            setTimeout(function() {
-              feed.close().then(function() {
-                done();
-              }).error(done);
-            }, 100);
-          }
-        });
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('`includeStates` should work', function() {
-      try {
-        feed = yield r.db(dbName).table(tableName).orderBy({index: 'id'}).limit(10).changes({includeStates: true}).run();
-        var i = 0;
-        feed.each(function(err, change) {
-          i++;
-          if (i === 10) {
-            feed.close();
-            done();
-          }
-        });
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-*/
-
-
-/*
-
-    var numDocs = 100; // Number of documents in the "big table" used to test the SUCCESS_PARTIAL
-    var smallNumDocs = 5; // Number of documents in the "small table"
-
-    it('Init for `cursor.js`', function() {
-      try {
-        dbName = uuid();
-        tableName = uuid(); // Big table to test partial sequence
-        tableName2 = uuid(); // small table to test success sequence
-
-        result = yield r.dbCreate(dbName).run()
-        assert.equal(result.dbs_created, 1);
-        result = yield [
-          r.db(dbName).tableCreate(tableName)('tables_created').run(),
-          r.db(dbName).tableCreate(tableName2)('tables_created').run()
-        ]
-        assert.deepEqual(result, [1, 1]);
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('Inserting batch - table 1', function() {
-      try {
-        result = yield r.db(dbName).table(tableName).insert(eval('['+new Array(numDocs).join('{}, ')+'{}]')).run();
-        assert.equal(result.inserted, numDocs);
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('Inserting batch - table 2', function() {
-      try {
-        result = yield r.db(dbName).table(tableName2).insert(eval('['+new Array(smallNumDocs).join('{}, ')+'{}]')).run();
-        assert.equal(result.inserted, smallNumDocs);
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('Updating batch', function() {
-      try {
-        // Add a date
-        result = yield r.db(dbName).table(tableName).update({
-          date: r.now().sub(r.random().mul(1000000)),
-          value: r.random()
-        }, {nonAtomic: true}).run();
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('`table` should return a cursor', function() {
-      try {
-        cursor = yield r.db(dbName).table(tableName).run({cursor: true});
-        assert(cursor);
-        assert.equal(cursor.toString(), '[object Cursor]');
-
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-
-
-
-    // This test is not working for now -- need more data? Server bug?
-    it('Remove the field `val` in some docs', function() {
-      var i=0;
-      try {
-        result = yield r.db(dbName).table(tableName).update({val: 1}).run();
-        //assert.equal(result.replaced, numDocs);
-
-        result = yield r.db(dbName).table(tableName)
-          .orderBy({index: r.desc("id")}).limit(5).replace(r.row.without("val"))
-          //.sample(1).replace(r.row.without("val"))
-          .run({cursor: true});
-        assert.equal(result.replaced, 5);
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('`changes` should work with squash: true', function() {
-      try {
-        feed = yield r.db(dbName).table(tableName).changes({squash: true}).run();
-        assert(feed);
-        assert.equal(feed.toString(), '[object Feed]');
-        yield feed.close();
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-
-    it('`get.changes` should return a feed', function() {
-      try {
-        feed = yield r.db(dbName).table(tableName).get(1).changes().run();
-        assert(feed);
-        assert.equal(feed.toString(), '[object AtomFeed]');
-        yield feed.close();
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-    it('`orderBy.limit.changes` should return a feed', function() {
-      try {
-        feed = yield r.db(dbName).table(tableName).orderBy({index: 'id'}).limit(2).changes().run();
-        assert(feed);
-        assert.equal(feed.toString(), '[object OrderByLimitFeed]');
-        yield feed.close();
-        done();
-      }
-      catch(e) {
-        done(e);
-      }
-    })
-
-*/
-
 
 });
