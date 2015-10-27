@@ -1,11 +1,13 @@
 "use strict";
-var uuid = require('uuid'),
+var Promise = require('bluebird'),
+    uuid = require('uuid'),
     chai = require('chai'),
     expect = chai.expect,
 
     config = require('./config.js'),
     r = require('../lib')(config);
 
+Promise.longStackTraces();
 chai.use(require('chai-as-promised'));
 
 function TestFixture() {}

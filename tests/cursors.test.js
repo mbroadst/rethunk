@@ -355,11 +355,9 @@ describe('Cursors', function() {
       return test.table.run({ cursor: true })
         .then(function(cursor) {
           cursor.on('end', function() { done(); });
-          cursor.on('error', function(err) { done(err); });
-        })
-        .delay(100)
-        .then(function() {
-          return test.table.update({ foo: r.now() });
+          setTimeout(function() {
+            return test.table.update({ foo: r.now() });
+          }, 100);
         });
     });
   });
