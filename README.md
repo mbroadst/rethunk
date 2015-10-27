@@ -10,14 +10,12 @@ A Node.js driver for RethinkDB with more advanced features.
 ### Install
 
 ```
-npm install rethinkdbdash
+npm install rethunk
 ```
-
-_Note_: The `rethinkdbdash-unstable` package is a relic from the past (rethinkdb < 1.13).
 
 ### Quick start
 
-Rethinkdbdash uses almost the same API as the official driver. Please refer to
+Rethunk uses almost the same API as the official driver. Please refer to
 the [official driver's documentation](http://www.rethinkdb.com/api/javascript/)
 for all the ReQL methods (the methods used to build the query).
 
@@ -27,7 +25,7 @@ The main differences are:
 - You need to execute the module when you import it:
 
 ```js
-var r = require('rethinkdbdash')();
+var r = require('rethunk')();
 // With the official driver:
 // var r = require('rethinkdb');
 ```
@@ -37,7 +35,7 @@ Once you have imported the driver, you can immediately run queries,
 you don't need to call `r.connect`, or pass a connection to `run`.
 
 ```js
-var r = require('rethinkdbdash')();
+var r = require('rethunk')();
 r.table('users').get('orphee@gmail.com').run().then(function(user) {
   // ...
 }).error(handleError)
@@ -46,7 +44,7 @@ r.table('users').get('orphee@gmail.com').run().then(function(user) {
 - Cursors are coerced to arrays by default
 
 ```js
-var r = require('rethinkdbdash')();
+var r = require('rethunk')();
 r.table('data').run().then(function(result) {
   assert(Array.isArray(result)) // true
   // With the official driver you need to call
@@ -58,7 +56,7 @@ r.table('data').run().then(function(result) {
 
 #### Drop in
 
-You can replace the official driver with rethinkdbdash by just replacing
+You can replace the official driver with rethunk by just replacing
 
 ```js
 var r = require('rethinkdb');
@@ -67,7 +65,7 @@ var r = require('rethinkdb');
 With:
 
 ```js
-var r = require('rethinkdbdash')({
+var r = require('rethunk')({
   pool: false,
   cursor: true
 });
@@ -78,7 +76,7 @@ If you want to take advantage of the connection pool, refer to the next section.
 
 #### From the official driver
 
-To switch from the official driver to rethinkdbdash and get the most of it,
+To switch from the official driver to rethunk and get the most of it,
 here are the few things to do:
 
 1. Change the way to import the driver.
@@ -90,9 +88,9 @@ here are the few things to do:
   To:
 
   ```js
-  var r = require('rethinkdbdash')();
+  var r = require('rethunk')();
   // Or if you do not connect to the default local instance:
-  // var r = require('rethinkdbdash')({servers: [{host: ..., port: ...}]});
+  // var r = require('rethunk')({servers: [{host: ..., port: ...}]});
   ```
 
 2. Remove everything related to a connection:
@@ -162,7 +160,7 @@ tls.createServer(tlsOpts, function (encryptedConnection) {
 And then safely connect to it with the `tls` option:
 
 ```js
-var r = require('rethinkdbdash')({
+var r = require('rethunk')({
   port: 29015,
   host: 'place-with-no-firewall.com',
   ssl: true
@@ -175,7 +173,7 @@ var r = require('rethinkdbdash')({
 
 ### New features and differences
 
-Rethinkdbdash ships with a few interesting features.
+rethunk ships with a few interesting features.
 
 
 #### Importing the driver
@@ -204,18 +202,18 @@ In case of a single instance, you can directly pass `host` and `port` in the top
 Examples:
 ```
 // connect to localhost:8080, and let the driver find other instances
-var r = require('rethinkdbdash')({
+var r = require('rethunk')({
     discovery: true
 });
 
 // connect to and only to localhost:8080
-var r = require('rethinkdbdash')();
+var r = require('rethunk')();
 
 // Do not create a connection pool
-var r = require('rethinkdbdash')({pool: false});
+var r = require('rethunk')({pool: false});
 
 // Connect to a cluster seeding from `192.168.0.100`, `192.168.0.101`, `192.168.0.102`
-var r = require('rethinkdbdash')({
+var r = require('rethunk')({
     servers: [
         {host: '192.168.0.100', port: 28015},
         {host: '192.168.0.101', port: 28015},
@@ -225,7 +223,7 @@ var r = require('rethinkdbdash')({
 
 // Connect to a cluster containing `192.168.0.100`, `192.168.0.100`, `192.168.0.102` and
 use a maximum of 3000 connections and try to keep 300 connections available at all time.
-var r = require('rethinkdbdash')({
+var r = require('rethunk')({
     servers: [
         {host: '192.168.0.100', port: 28015},
         {host: '192.168.0.101', port: 28015},
@@ -245,10 +243,10 @@ _Note_: The option `{optionalRun: false}` will disable the optional run for all 
 
 #### Connection pool
 
-As mentionned before, `rethinkdbdash` has a connection pool and manage all the connections
+As mentionned before, `rethunk` has a connection pool and manage all the connections
 itself. The connection pool is initialized as soon as you execute the module.
 
-You should never have to worry about connections in rethinkdbdash. Connections are created
+You should never have to worry about connections in rethunk. Connections are created
 as they are needed, and in case of a host failure, the pool will try to open connections with an
 exponential back off algorithm.
 
@@ -328,8 +326,8 @@ r.getPoolMaster().on('healthy', function(healthy) {
 
 ##### Note about connections
 
-If you do not wish to use rethinkdbdash connection pool, you can implement yours. The
-connections created with rethinkdbdash emits a "release" event when they receive an
+If you do not wish to use rethunk connection pool, you can implement yours. The
+connections created with rethunk emits a "release" event when they receive an
 error, an atom, or the end (or full) sequence.
 
 A connection can also emit a "timeout" event if the underlying connection times out.
@@ -337,7 +335,7 @@ A connection can also emit a "timeout" event if the underlying connection times 
 
 #### Arrays by default, not cursors
 
-Rethinkdbdash automatically coerce cursors to arrays. If you need a raw cursor,
+rethunk automatically coerce cursors to arrays. If you need a raw cursor,
 you can call the `run` command with the option `{cursor: true}` or import the
 driver with `{cursor: true}`.
 
@@ -368,7 +366,7 @@ synchronously returned with the `toStream([connection])` method.
 var fs = require('fs');
 var file = fs.createWriteStream('file.txt');
 
-var r = require('rethinkdbdash')();
+var r = require('rethunk')();
 r.table('users').toStream()
   .on('error', console.log)
   .pipe(file)
@@ -418,7 +416,7 @@ This means that you can `yield` any query without calling `run.`
 
 ```js
 var bluebird = require('bluebird');
-var r = require('rethinkdbdash')();
+var r = require('rethunk')();
 
 bluebird.coroutine(function*() {
   try {
@@ -447,7 +445,7 @@ r.setArrayLimit(<number>)
 
 #### Undefined values
 
-Rethinkdbdash will ignore the keys/values where the value is `undefined` instead
+rethunk will ignore the keys/values where the value is `undefined` instead
 of throwing an error like the official driver.
 
 
@@ -459,7 +457,7 @@ of throwing an error like the official driver.
 If your query fails, the driver will return an error with a backtrace; your query
 will be printed and the broken part will be highlighted.
 
-Backtraces in rethinkdbdash are tested and properly formatted. Typically, long backtraces
+Backtraces in rethunk are tested and properly formatted. Typically, long backtraces
 are split on multiple lines and if the driver cannot serialize the query,
 it will provide a better location of the error.
 
@@ -468,7 +466,7 @@ it will provide a better location of the error.
 
 The server may return confusing error messages when the wrong number
 of arguments is provided (See [rethinkdb/rethinkdb#2463](https://github.com/rethinkdb/rethinkdb/issues/2463) to track progress).
-Rethinkdbdash tries to make up for it by catching errors before sending
+rethunk tries to make up for it by catching errors before sending
 the query to the server if possible.
 
 
@@ -497,21 +495,13 @@ mocha --harmony-generators long_test/discovery.js -t 50000
 mocha --harmony-generators long_test/static.js -t 50000
 ```
 
-
-Tests are also being run on [wercker](http://wercker.com/):
-- Builds: [https://app.wercker.com/#applications/52dffe8ba4acb3ef16010ef8/tab](https://app.wercker.com/#applications/52dffe8ba4acb3ef16010ef8/tab)
-- Box:
-  - Github: [https://github.com/neumino/box-rethinkdbdash](https://github.com/neumino/box-rethinkdbdash)
-  - Wercker builds: [https://app.wercker.com/#applications/52dffc65a4acb3ef16010b60/tab](https://app.wercker.com/#applications/52dffc65a4acb3ef16010b60/tab)
-
-
 ### FAQ
 
-- __Why rethinkdbdash?__
+- __Why rethunk?__
 
-  Rethinkdbdash was built as an experiment for promises and a connection pool. Its
+  rethunk was built as an experiment for promises and a connection pool. Its
   purpose was to test new features and improve the official driver. Today,
-  rethinkdbdash still tries to make the developer experience as pleasant as possible -
+  rethunk still tries to make the developer experience as pleasant as possible -
   like with the recent support for Node.js streams.
 
   Some features like promises have been back ported to the official driver, some like
@@ -520,7 +510,7 @@ Tests are also being run on [wercker](http://wercker.com/):
 
 - __Is it stable?__
 
-  Yes. Rethinkdbdash is used by quite many people. The driver is also used by `thinky`,
+  Yes. rethunk is used by quite many people. The driver is also used by `thinky`,
   and has been and is still being tested in the wild.
 
 
@@ -529,7 +519,7 @@ Tests are also being run on [wercker](http://wercker.com/):
   All the tests pass with io.js so yes.
 
 
-- __Is rethinkdbdash going to become the JavaScript official driver?__
+- __Is rethunk going to become the JavaScript official driver?__
 
   Not (yet?), maybe :)
 
