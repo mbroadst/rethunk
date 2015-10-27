@@ -1,6 +1,5 @@
 "use strict";
-var Promise = require('bluebird'),
-    Stream = require('stream'),
+var Stream = require('stream'),
     TestFixture = require('./support'),
     r = TestFixture.r,
     config = require('./config'),
@@ -74,17 +73,15 @@ conditionalDescribe('Streams', function() {
           expect(stream).to.be.an.instanceOf(Readable);
 
           var count = 0;
-          stream.on('data', function() {
+          stream.on('data', function(d) {
             count++;
-            if (count === 3) { stream.close(); done(); }
+            if (count === 4) { stream.close(); done(); }
           });
-
-          return Promise.all([
-            test.table.insert({ id: 1 }),
-            test.table.get(1).update({ update: 1 }),
-            test.table.get(1).update({ update: 2 })
-          ]);
-        });
+        })
+        .delay(100)
+        .then(function() { return test.table.insert({ id: 1 }); })
+        .then(function() { return test.table.get(1).update({ update: 1 }); })
+        .then(function() { return test.table.get(1).update({ update: 2 }); });
     });
 
     it('`table` should return a stream - testing empty SUCCESS_COMPLETE', function() {
