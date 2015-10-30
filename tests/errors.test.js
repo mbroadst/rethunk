@@ -1,6 +1,7 @@
 "use strict";
 var TestFixture = require('./support'),
     r = TestFixture.r,
+    errors = require('../lib/error'),
     expect = require('chai').expect;
 
 /*
@@ -762,6 +763,31 @@ describe('Errors', function() {
         expect(promise).to.eventually.be.rejectedWith(message);
       }
     });
+  });
+
+  describe('error types', function() {
+    it('ReqlResourceError', function() {
+      var invalid = r.expr([1, 2, 3, 4]).run({ arrayLimit: 2 });
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlResourceError);
+    });
+
+    it('ReqlLogicError', function() {
+      var invalid = r.expr(1).add('foo');
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlLogicError);
+    });
+
+    it('ReqlOpFailedError', function() {
+      var invalid = r.db('DatabaseThatDoesNotExist').tableList();
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlOpFailedError);
+    });
+
+    it('ReqlUserError', function() {
+      var invalid = r.branch(r.error('a'), 1, 2);
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlUserError);
+    });
+
+    // Missing tests for ReqlInternalError and ReqlOpIndeterminateError
+    // as there are no easy way to trigger those
   });
 
 });
