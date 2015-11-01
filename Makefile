@@ -3,7 +3,7 @@ ifdef GREP
 endif
 
 REPORTER ?= spec
-TESTS = ./tests
+TESTS = ./tests/**/*.test.js
 NPM_BIN = ./node_modules/.bin
 
 jshint:
