@@ -155,7 +155,7 @@ describe('Errors', function() {
     },
     { name: "r.expr([1, 2, 3]).concatMap(function(v) { return v; }).add(1)",
       fn: function() { return r.expr([1, 2, 3]).concatMap(function(v) { return v; }).add(1); },
-      message: function() { return 'Cannot convert NUMBER to SEQUENCE in:\nr.expr([1, 2, 3]).concatMap(function(var_1) {\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    return var_1\n    ^^^^^^^^^^^^\n}).add(1)\n^^       \n'; }
+      message: function() { return "Cannot convert NUMBER to SEQUENCE in:\nr.expr([1, 2, 3]).concatMap(function(var_1) {\n                            ^^^^^^^^^^^^^^^^^\n    return var_1\n    ^^^^^^^^^^^^\n}).add(1)\n^        \n"; }
     },
     { name: "r.expr([1, 2, 3]).orderBy('foo').add(1)",
       fn: function() { return r.expr([1, 2, 3]).orderBy('foo').add(1); },
@@ -769,14 +769,14 @@ describe('Errors', function() {
   });
 
   describe('error types', function() {
-    it('ReqlResourceError', function() {
+    it('ReqlResourceLimitError', function() {
       var invalid = r.expr([1, 2, 3, 4]).run({ arrayLimit: 2 });
-      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlResourceError);
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlResourceLimitError);
     });
 
-    it('ReqlLogicError', function() {
+    it('ReqlQueryLogicError', function() {
       var invalid = r.expr(1).add('foo');
-      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlLogicError);
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlQueryLogicError);
     });
 
     it('ReqlOpFailedError', function() {
