@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   host: process.env.RETHINKDB_HOST || 'localhost',
   port: parseInt(process.env.RETHINKDB_PORT, 10) || 28015,

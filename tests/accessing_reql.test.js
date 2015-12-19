@@ -298,7 +298,8 @@ describe('Accessing ReQL', function() {
     it('should support `includeStates`', function(done) {
       return generateData(test)
         .then(function() {
-          return test.table.orderBy({ index: 'id' }).limit(10).changes({ includeStates: true });
+          return test.table.orderBy({ index: 'id' })
+            .limit(10).changes({ includeStates: true, includeInitial: true });
         })
         .then(function(feed) {
           var i = 0;
