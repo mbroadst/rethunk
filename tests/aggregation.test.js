@@ -72,10 +72,10 @@ describe('Aggregation', function() {
       .then(function(result) {
         expect(result).to.eql([
           { group: 1,
-            reduction: [ {id: 1, group:1}, {id: 2, group:1}, {id: 3, group:1} ]
+            reduction: [ { id: 3, group: 1 }, { id: 2, group: 1 }, { id: 1, group: 1 } ]
           },
           { group: 4,
-            reduction: [ {id: 4, group: 4} ]
+            reduction: [ { id: 4, group: 4 } ]
           }
         ]);
       });
@@ -100,6 +100,20 @@ describe('Aggregation', function() {
                 ] ]
             ]
           });
+        });
+    });
+
+    it('should property parse the results', function() {
+      return r.expr([
+          { name: "Michel", date: r.now() },
+          { name: "Laurent", date: r.now() },
+          { name: "Sophie", date: r.now().sub(1000) }
+        ])
+        .group('date')
+        .then(function(result) {
+          expect(result).to.have.length(2);
+          expect(result[0].group).to.be.an.instanceOf(Date);
+          expect(result[0].reduction[0].date).to.be.an.instanceOf(Date);
         });
     });
   });
