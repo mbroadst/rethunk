@@ -86,14 +86,16 @@ describe('Document Manipulation', function() {
         r.expr({a: 0}).merge({b: 1}),
         r.expr([{a: 0}, {a: 1}, {a: 2}]).merge({b: 1}),
         r.expr({a: 0, c: {l: 'tt'}}).merge({b: {c: {d: {e: 'fff'}}, k: 'pp'}}),
-        r.expr({a: 1}).merge({date: r.now()})
+        r.expr({a: 1}).merge({date: r.now()}),
+        r.expr({a: 1}).merge({nested: r.row}, {b: 2})
       ])
-      .spread(function(r1, r2, r3, r4) {
+      .spread(function(r1, r2, r3, r4, r5) {
         expect(r1).to.eql({a: 0, b: 1});
         expect(r2).to.eql([{a: 0, b: 1}, {a: 1, b: 1}, {a: 2, b: 1}]);
         expect(r3).to.eql({a: 0, b: {c: {d: {e: 'fff'}}, k: 'pp'}, c: {l:'tt'}});
         expect(r4.a).to.eql(1);
         expect(r4.date).to.be.instanceOf(Date);
+        expect(r5).to.eql({ a: 1, nested: { a: 1 }, b: 2 });
       });
     });
 
@@ -110,7 +112,7 @@ describe('Document Manipulation', function() {
 
     it('should throw if no arguments are passed', function() {
       var invalid = function() { return test.table.merge(); };
-      expect(invalid).to.throw(/`merge` takes 1 argument, 0 provided/);
+      expect(invalid).to.throw(/`merge` takes at least 1 argument, 0 provided/);
     });
   });
 
