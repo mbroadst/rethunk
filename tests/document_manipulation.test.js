@@ -350,4 +350,10 @@ describe('Document Manipulation', function() {
     });
   });
 
+  describe('#values', function() {
+    it('should work', function() {
+      return r.expr({ a: 0, b: 1, c: 2 }).values().orderBy(r.row)
+        .then(function(result) { expect(result).to.eql([0, 1, 2]); });
+    });
+  });
 });

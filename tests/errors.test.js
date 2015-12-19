@@ -749,8 +749,11 @@ describe('Errors', function() {
       fn: function() { return r.db(test._dbName).table(test._tableName).merge(function(user) { return r.branch(user('location').eq('US'), { adult: user('age').gt(NaN) }, { radult: user('age').gt(18) }); }); },
       message: function() { return 'Cannot convert `NaN` to JSON in:\nr.db(\"'+ test._dbName + '\").table(\"'+ test._tableName + '\")\n    .merge(function(var_1) {\n        return r.branch(var_1(\"location\").eq(\"US\"), {\n            adult: var_1(\"age\").gt(NaN)\n                                   ^^^ \n        }, {\n            radult: var_1(\"age\").gt(18)\n        })\n    })\n'; }
     },
-
-
+    {
+      name: "r.expr({a:1, b:2, c: 3}).values().add(2)",
+      fn: function() { return r.expr({a:1, b:2, c: 3}).values().add(2); },
+      message: "Expected type ARRAY but found NUMBER in:\nr.expr({\n^^^^^^^^\n    a: 1,\n    ^^^^^\n    b: 2,\n    ^^^^^\n    c: 3\n    ^^^^\n}).values().add(2)\n^^^^^^^^^^^^^^^^^^\n"
+    }
   ].forEach(function(testCase) {
     var testName = !!testCase.name ? testCase.name : testCase.fn.toString();
     it(testName, function() {
