@@ -103,7 +103,7 @@ describe('Cursors', function() {
           return processData(cursor);
         })
         .catch(function(err) {
-          expect(err).to.match(/No more rows in the Cursor./);
+          expect(err).to.match(/No more rows in the cursor./);
           expect(count).to.equal(100);
           done();
         });
@@ -131,7 +131,7 @@ describe('Cursors', function() {
           return processData(cursor);
         })
         .catch(function(err) {
-          expect(err).to.match(/No more rows in the Cursor./);
+          expect(err).to.match(/No more rows in the cursor./);
           expect(count).to.equal(100);
           done();
         });
