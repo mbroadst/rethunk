@@ -188,14 +188,15 @@ describe('Cursors', function() {
         });
     });
 
-    it('should work on an atom feed', function() {
+    it('should work on an atomic feed', function() {
       var idValue = test.uuid();
-      return test.table.get(idValue).changes()
+      return test.table.get(idValue).changes({ includeInitial: true })
         .then(function(feed) {
           test.feed = feed;
           return test.table.insert({ id: idValue });
         })
-        .then(function() { return test.feed.next(); })
+        .then(function() {
+          return test.feed.next(); })
         .then(function(result) {
           expect(result).to.eql({ new_val: null });
           return test.feed.next();
