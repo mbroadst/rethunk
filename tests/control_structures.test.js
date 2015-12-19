@@ -256,5 +256,10 @@ describe('Control Structures', function() {
     it('should work', function() {
       return r.uuid().then(function(result) { expect(result).to.be.a('string'); });
     });
+
+    it('should support an optional string argument (for determinism)', function() {
+      return r.uuid('deterministic')
+        .then(function(result) { expect(result).to.equal('8757234f-0223-5ee8-b375-c39d595bee18'); });
+    });
   });
 });
