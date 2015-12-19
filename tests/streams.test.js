@@ -75,7 +75,7 @@ conditionalDescribe('Streams', function() {
           var count = 0;
           stream.on('data', function(d) {
             count++;
-            if (count === 4) { stream.close(); done(); }
+            if (count === 3) { stream.close(); done(); }
           });
         })
         .delay(100)
@@ -85,9 +85,9 @@ conditionalDescribe('Streams', function() {
     });
 
     it('`table` should return a stream - testing empty SUCCESS_COMPLETE', function() {
-      return r.connect({ max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey })
+      return r.connect({ host: config.host, port: config.port, authKey: config.authKey })
         .then(function(connection) {
-          return test.table.run(connection, { stream: true });
+          return test.table.run(connection, { stream: true, maxBatchRows: 1 });
         })
         .then(function(stream) {
           expect(stream).to.exist;
@@ -99,10 +99,10 @@ conditionalDescribe('Streams', function() {
     it('test flowing - event data', function(done) {
       return test.table.insert([{}, {}, {}])
         .then(function() {
-          return r.connect({ max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey });
+          return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
         })
         .then(function(connection) {
-          return test.table.run(connection, { stream: true });
+          return test.table.run(connection, { stream: true, maxBatchRows: 1 });
         })
         .then(function(stream) {
           expect(stream).to.exist;
@@ -119,10 +119,10 @@ conditionalDescribe('Streams', function() {
     it('should return a document with `read` when the stream is readable', function(done) {
       return test.table.insert([{}, {}, {}])
         .then(function() {
-          return r.connect({ max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey });
+          return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
         })
         .then(function(connection) {
-          return test.table.run(connection, { stream: true });
+          return test.table.run(connection, { stream: true, maxBatchRows: 1 });
         })
         .then(function(stream) {
           expect(stream).to.exist;
@@ -146,10 +146,10 @@ conditionalDescribe('Streams', function() {
     it('Test flowing - event data', function(done) {
       return test.table.insert([{}, {}, {}])
         .then(function() {
-          return r.connect({ max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey });
+          return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
         })
         .then(function(connection) {
-          return test.table.run(connection, { stream: true });
+          return test.table.run(connection, { stream: true, maxBatchRows: 1 });
         })
         .then(function(stream) {
           expect(stream).to.exist;
@@ -173,11 +173,11 @@ conditionalDescribe('Streams', function() {
           {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         ])
         .then(function() {
-          return r.connect({ max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey });
+          return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
         })
         .then(function(connection) {
           return test.table.limit(10).union([ null ])
-            .union(test.table.limit(10)).run(connection, { stream: true });
+            .union(test.table.limit(10)).run(connection, { stream: true, maxBatchRows: 1 });
         })
         .then(function(stream) {
           expect(stream).to.exist;
@@ -220,7 +220,7 @@ conditionalDescribe('Streams', function() {
       it('should work', function(done) {
         return test.table.insert([{}, {}, {}])
           .then(function() {
-            return r.connect({ max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey });
+            return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
           })
           .then(function(connection) {
             return test.table.toStream();
@@ -247,7 +247,7 @@ conditionalDescribe('Streams', function() {
       it('should work with grouped data', function(done) {
         return test.table.insert([{}, {}, {}])
           .then(function() {
-            return r.connect({ max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey });
+            return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
           })
           .then(function(connection) {
             return test.table.group({index: 'id'}).toStream();

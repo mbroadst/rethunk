@@ -35,10 +35,10 @@ describe('Cursors', function() {
     it('Automatic coercion from cursor to table with multiple batches', function() {
       var i=0;
       try {
-        var connection = yield r.connect({max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey});
+        var connection = yield r.connect({host: config.host, port: config.port, authKey: config.authKey});
         assert(connection);
 
-        result = yield r.db(dbName).table(tableName).run(connection);
+        result = yield r.db(dbName).table(tableName).run(connection, { maxBatchRows: 1 });
         assert(result.length > 0);
         done();
       }
@@ -119,12 +119,10 @@ describe('Cursors', function() {
           });
       }
 
-      return r.connect({
-          max_batch_rows: 10, host: config.host, port: config.port, authKey: config.authKey
-        })
+      return r.connect({ host: config.host, port: config.port, authKey: config.authKey })
         .then(function(connection) {
           expect(connection).to.exist;
-          return test.table.run(connection, { cursor: true });
+          return test.table.run(connection, { cursor: true, maxBatchRows: 10 });
         })
         .then(function(cursor) {
           expect(cursor).to.exist;
@@ -147,16 +145,14 @@ describe('Cursors', function() {
           });
       }
 
-      return r.connect({
-          max_batch_rows: 10, host: config.host, port: config.port, authKey: config.authKey
-        })
+      return r.connect({ host: config.host, port: config.port, authKey: config.authKey })
         .then(function(connection) {
           expect(connection).to.exist;
 
           return test.table
             .orderBy({ index: 'id' })
             .map(r.row('val').add(1))
-            .run(connection, { cursor: true });
+            .run(connection, { cursor: true, maxBatchRows: 10 });
         })
         .then(function(cursor) {
           expect(cursor).to.exist;
@@ -304,11 +300,11 @@ describe('Cursors', function() {
 
     it('should work with multiple batches - testing empty SUCCESS_COMPLETE', function() {
       return r.connect({
-          max_batch_rows: 1, host: config.host, port: config.port, authKey: config.authKey
+          host: config.host, port: config.port, authKey: config.authKey
         })
         .then(function(connection) {
           expect(connection).to.exist;
-          return test.table.run(connection, { cursor: true });
+          return test.table.run(connection, { cursor: true, maxBatchRows: 1 });
         })
         .then(function(cursor) { return cursor.toArray(); })
         .then(function(result) { expect(result).to.exist; });
