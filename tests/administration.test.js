@@ -108,6 +108,11 @@ describe('Administration', function() {
         .then(function(result) { expect(result.ready).to.equal(1); });
     });
 
+    it('should work with multiple options', function() {
+      return test.table.wait({ waitFor: 'ready_for_writes', timeout: 2000 })
+        .then(function(result) { expect(result.ready).to.equal(1); });
+    });
+
     it('should throw if called with too many arguments', function() {
       var invalid = function() { return test.table.wait('hello', 'world'); };
       expect(invalid).to.throw(/`wait` takes at most 1 argument, 2 provided/);
