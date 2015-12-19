@@ -14,6 +14,7 @@ function generateData(test) {
     .then(function(result) {
       expect(result.inserted).to.equal(100);
       test.pks = result.generated_keys;
+      test.data = testData;
     });
 }
 
@@ -311,6 +312,25 @@ describe('Accessing ReQL', function() {
         });
     });
 
+    it('should support `includeInitial`', function(done) {
+      return generateData(test)
+        .then(function() {
+          return test.table.orderBy({ index: 'id' }).changes({ includeInitial: true });
+        })
+        .then(function(feed) {
+          var i = 0;
+          feed.each(function(err, change) {
+            i++;
+            expect(change.old_val).to.be.undefined;
+            expect(test.pks).to.include(change.new_val.id);
+            if (i === test.data.length) {
+              feed.close();
+              done();
+            }
+          });
+        });
+    });
+
     it('should support `on`', function(done) {
       return generateData(test)
         .then(function() { return test.table.changes(); })
@@ -388,6 +408,17 @@ describe('Accessing ReQL', function() {
         .then(function(connection) {
           test.connection = connection;
           return connection.noreplyWait();
+        });
+    });
+  });
+
+  describe('#server', function() {
+    it('should return the server UUID and name for the current connection', function() {
+      return r.connect(config)
+        .then(function(conn) { return conn.server(); })
+        .then(function(serverInfo) {
+          expect(serverInfo.name).to.be.a.string;
+          expect(serverInfo.id).to.be.a.string;
         });
     });
   });
