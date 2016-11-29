@@ -1,28 +1,18 @@
 language: node_js
 node_js:
-  - '0.10'
-  - '0.12'
   - '4'
+  - '6'
+
+sudo: required
+dist: trusty
 
 addons:
+  rethinkdb: "2.3"
   code_climate:
     repo_token: 6c06bb655d903f47c8c6a889709c089660f95128addec8624acda75a344d1db0
 
-cache:
-  directories:
-    - node_modules
-
 before_install:
-  - source /etc/lsb-release
-  - echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
-  - wget -qO- http://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
-  - sudo apt-get update -qq
-  - sudo apt-get install rethinkdb -y
   - npm install -g codeclimate-test-reporter
-
-before_script:
-  - sudo mv /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/test.conf
-  - sudo service rethinkdb start
 
 script:
   - make coverage
