@@ -198,6 +198,18 @@ describe('Aggregation', function() {
       return r.expr([{a: 2}, {a: 10}, {a: 9}]).avg('a')
         .then(function(result) { expect(result).to.equal(7); });
     });
+
+    describe('#r.avg', function() {
+      it('should work ', function() {
+        return r.avg([1,2,3])
+          .then(function(result) { expect(result).to.equal(2); });
+      });
+
+      it('should work with a field', function() {
+        return r.avg([{a: 2}, {a: 10}, {a: 9}], 'a')
+          .then(function(result) { expect(result).to.equal(7); });
+      });
+    });
   });
 
   describe('#min', function() {
@@ -210,6 +222,18 @@ describe('Aggregation', function() {
       return r.expr([{a: 2}, {a: 10}, {a: 9}]).min('a')
         .then(function(result) { expect(result).to.eql({ a: 2 }); });
     });
+
+    describe('#r.min', function() {
+      it('should work ', function() {
+        return r.min([1,2,3])
+          .then(function(result) { expect(result).to.equal(1); });
+      });
+
+      it('should work with a field', function() {
+        return r.min([{a: 2}, {a: 10}, {a: 9}], 'a')
+          .then(function(result) { expect(result).to.eql({ a: 2 }); });
+      });
+    });
   });
 
   describe('#max', function() {
@@ -221,6 +245,18 @@ describe('Aggregation', function() {
     it('should work with a field', function() {
       return r.expr([{a: 2}, {a: 10}, {a: 9}]).max('a')
         .then(function(result) { expect(result).to.eql({ a: 10 }); });
+    });
+
+    describe('#r.max', function() {
+      it('should work ', function() {
+        return r.max([1,2,3])
+          .then(function(result) { expect(result).to.equal(3); });
+      });
+
+      it('should work with a field', function() {
+        return r.max([{a: 2}, {a: 10}, {a: 9}], 'a')
+          .then(function(result) { expect(result).to.eql({ a: 10 }); });
+      });
     });
   });
 
@@ -239,6 +275,13 @@ describe('Aggregation', function() {
           ]);
         })
         .spread(function(r1, r2) { expect(r1).to.eql(r2); });
+    });
+
+    describe('#r.distinct', function() {
+      it('should work', function() {
+        return r.distinct([1,2,3,1,2,1,3,2,2,1,4]).orderBy(r.row)
+          .then(function(result) { expect(result).to.eql([1,2,3,4]); });
+      });
     });
   });
 
@@ -269,4 +312,37 @@ describe('Aggregation', function() {
     });
   });
 
+  describe('#fold', function() {
+    it('should work', function() {
+      return r.expr([1,2,3]).fold(10, function(left, right) { return left.add(right); }).run()
+        .then(function(result) { expect(result).to.equal(16); });
+    });
+
+    it('should work -- with emit', function() {
+      return r.expr(['foo', 'bar', 'buzz', 'hello', 'world'])
+        .fold(0, function(acc, row) { return acc.add(1); }, {
+          emit: function(oldAcc, element, newAcc) {
+            return [oldAcc, element, newAcc];
+          }
+        })
+        .run()
+        .then(function(result) {
+          expect(result)
+            .to.eql([0, 'foo', 1, 1, 'bar', 2, 2, 'buzz', 3, 3, 'hello', 4, 4, 'world', 5]);
+        });
+    });
+
+    it('should work -- with emit and finalEmit', function() {
+      return r.expr(['foo', 'bar', 'buzz', 'hello', 'world'])
+        .fold(0, function(acc, row) { return acc.add(1); }, {
+          emit: function(oldAcc, element, newAcc) { return [ oldAcc, element, newAcc ]; },
+          finalEmit: function(acc) { return [ acc ]; }
+        })
+        .run()
+        .then(function(result) {
+          expect(result)
+            .to.eql([0, 'foo', 1, 1, 'bar', 2, 2, 'buzz', 3, 3, 'hello', 4, 4, 'world', 5, 5]);
+        });
+    });
+  });
 });

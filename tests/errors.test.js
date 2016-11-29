@@ -653,21 +653,9 @@ describe('Errors', function() {
       fn: function() { return r.db(test._dbName).table(test._tableName).wait().do(function(x) { return x.add(4); }); },
       message: function() { return "Expected type NUMBER but found OBJECT in:\nr.db(\"" + test._dbName +"\").table(\"" + test._tableName +"\")\n    .wait().do(function(var_1) {\n        return var_1.add(4)\n               ^^^^^^^^^^^^\n    })\n"; }
     },
-    { name: "r.wait().do(function(x) { return x.add(4); })",
-      fn: function() { return r.wait().do(function(x) { return x.add(4); }); },
-      message: function() { return "Expected type NUMBER but found OBJECT in:\nr.wait().do(function(var_1) {\n    return var_1.add(4)\n           ^^^^^^^^^^^^\n})\n"; }
-    },
     { name: "r.db(test._dbName).table(test._tableName).reconfigure({ shards: 1 }).do(function(x) { return x.add(4); })",
       fn: function() { return r.db(test._dbName).table(test._tableName).reconfigure({ shards: 1 }).do(function(x) { return x.add(4); }); },
       message: function() { return "Missing required argument `replicas` in:\nr.db(\"" + test._dbName +"\").table(\"" + test._tableName +"\")\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    .reconfigure({\n    ^^^^^^^^^^^^^^\n        shards: 1\n        ^^^^^^^^^\n    }).do(function(var_1) {\n    ^^                     \n        return var_1.add(4)\n    })\n"; }
-    },
-    { name: "r.reconfigure({ shards: 1 }).do(function(x) { return x.add(4); })",
-      fn: function() { return r.reconfigure({ shards: 1 }).do(function(x) { return x.add(4); }); },
-      message: function() { return "Missing required argument `replicas` in:\nr.reconfigure({\n^^^^^^^^^^^^^^^\n    shards: 1\n    ^^^^^^^^^\n}).do(function(var_1) {\n^^                     \n    return var_1.add(4)\n})\n"; }
-    },
-    { name: "r.rebalance().do(function(x) { return x.add(4); })",
-      fn: function() { return r.rebalance().do(function(x) { return x.add(4); }); },
-      message: function() { return "Expected type NUMBER but found OBJECT in:\nr.rebalance().do(function(var_1) {\n    return var_1.add(4)\n           ^^^^^^^^^^^^\n})\n"; }
     },
     { name: "r.expr(1).add('foo').add(r.db(test._dbName).table(test._tableName).rebalance().do(function(x) { return x.add(4); }))",
       fn: function() { return r.expr(1).add('foo').add(r.db(test._dbName).table(test._tableName).rebalance().do(function(x) { return x.add(4); })); },
@@ -771,22 +759,22 @@ describe('Errors', function() {
   describe('error types', function() {
     it('ReqlResourceLimitError', function() {
       var invalid = r.expr([1, 2, 3, 4]).run({ arrayLimit: 2 });
-      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlResourceLimitError);
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlRuntimeError);
     });
 
     it('ReqlQueryLogicError', function() {
       var invalid = r.expr(1).add('foo');
-      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlQueryLogicError);
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlRuntimeError);
     });
 
     it('ReqlOpFailedError', function() {
       var invalid = r.db('DatabaseThatDoesNotExist').tableList();
-      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlOpFailedError);
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlRuntimeError);
     });
 
     it('ReqlUserError', function() {
       var invalid = r.branch(r.error('a'), 1, 2);
-      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlUserError);
+      expect(invalid).to.eventually.be.rejectedWith(errors.ReqlRuntimeError);
     });
 
     // Missing tests for ReqlInternalError and ReqlOpIndeterminateError

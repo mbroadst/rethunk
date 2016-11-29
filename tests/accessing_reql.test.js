@@ -26,6 +26,12 @@ describe('Accessing ReQL', function() {
     it('should be a shortcut for r.expr', function() {
       return r(1).then(function(result) { expect(result).to.equal(1); });
     });
+
+    it('should throw an error if `servers` is empty', function() {
+      expect(function() {
+        require('../lib')({ servers: [] });
+      }).to.throw('If `servers` is an array, it must contain at least one server.');
+    });
   });
 
   describe('#connect', function() {
@@ -352,7 +358,6 @@ describe('Accessing ReQL', function() {
         });
     });
 
-
     it('events should not return an error if the feed is closed (1)', function(done) {
       test.table.get(1).changes()
         .then(function(feed) {
@@ -393,6 +398,44 @@ describe('Accessing ReQL', function() {
         });
     });
 
+    it('should support `includeOffsets`', function(done) {
+      test.table.insert([{}, {}, {}, {}, {}]).run()
+        .then(function() {
+          return test.table.orderBy({ index: 'id' }).limit(2)
+            .changes({ includeOffsets: true, includeInitial: true }).run();
+        })
+        .then(function(feed) {
+          var counter = 0;
+          feed.each(function(error, change) {
+            expect(change.new_offset).to.be.a.number;
+            if (counter >= 2) {
+              expect(change.old_offset).to.be.a.number;
+              feed.close().then(function() { done(); });
+            }
+            counter++;
+          });
+
+          return test.table.insert({ id: 0 });
+        });
+    });
+
+    it('should support `includeTypes`', function(done) {
+      test.table.insert([{}, {}, {}, {}, {}]).run()
+        .then(function() {
+          return test.table.orderBy({ index: 'id' })
+            .limit(2).changes({ includeTypes: true, includeInitial: true }).run();
+        })
+        .then(function(feed) {
+          var counter = 0;
+          feed.each(function(error, change) {
+            expect(change.type).to.be.a.string;
+            if (counter > 0) feed.close().then(function() { done(); });
+            counter++;
+          });
+
+          return test.table.insert({ id: 0 });
+        });
+    });
   });
 
   describe('#noreplyWait', function() {
@@ -424,6 +467,47 @@ describe('Accessing ReQL', function() {
     });
   });
 
-  describe('#EventEmitter (connection)', function() {
+  describe('#grant', function() {
+    it('should work', function() {
+      var conn;
+      var restrictedDbName = test.uuid();
+      var restrictedTableName = test.uuid();
+      var user = test.uuid();
+      var password = test.uuid();
+
+      return r.connect(config)
+        .then(function(conn_) {
+          expect(conn_).to.exist;
+          conn = conn_;
+          return r.dbCreate(restrictedDbName).run(conn);
+        })
+        .then(function(result) {
+          expect(result.config_changes).to.have.length(1);
+          expect(result.dbs_created).to.equal(1);
+          return r.db(restrictedDbName).tableCreate(restrictedTableName).run(conn);
+        })
+        .then(function(result) {
+          expect(result.tables_created).to.equal(1);
+
+          return r.db('rethinkdb').table('users')
+            .insert({ id: user, password: password })
+            .run(conn);
+        })
+        .then(function(result) {
+          return r.db(restrictedDbName).table(restrictedTableName)
+            .grant(user, { read: true, write: true, config: true })
+            .run(conn);
+        })
+        .then(function(result) {
+          expect(result).to.eql({
+            granted: 1,
+            permissions_changes: [{
+              new_val: { config: true, read: true, write: true },
+              old_val: null
+            }]
+          });
+        });
+    });
   });
+
 });

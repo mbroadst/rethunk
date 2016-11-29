@@ -157,9 +157,9 @@ describe('Math and Logic', function() {
       });
     });
 
-    it('should throw if no arguments are passed', function() {
-      var invalid = function() { return r.and(); };
-      expect(invalid).to.throw(/takes at least 1 argument, 0 provided/);
+    it('should work if no arguments are passed', function() {
+      return r.and()
+        .then(function(result) { expect(result).to.be.true; });
     });
   });
 
@@ -179,9 +179,9 @@ describe('Math and Logic', function() {
       });
     });
 
-    it('should throw if no arguments are passed', function() {
-      var invalid = function() { return r.or(); };
-      expect(invalid).to.throw(/takes at least 1 argument, 0 provided/);
+    it('should work if no arguments are passed', function() {
+      return r.or()
+        .then(function(result) { expect(result).to.be.false; });
     });
   });
 

@@ -148,14 +148,14 @@ describe('Selecting Data', function() {
         });
     });
 
-    it('should throw if no arguments are passed', function() {
-      var invalid = function() {
-        return r.db(test._dbName).table(test._tableName).getAll();
-      };
+    it('should work with no argument - primary key', function() {
+      return test.table.getAll().run()
+        .then(function(result) { expect(result).to.have.length(0); });
+    });
 
-      expect(invalid).to.throw(/takes at least 1 argument, 0 provided/);
-      expect(invalid).to.throw(r.Error.ReqlDriverError);
-      expect(invalid).to.throw(Error);
+    it('should work with no argument - index', function() {
+      return test.table.getAll({ index: 'id' }).run()
+        .then(function(result) { expect(result).to.have.length(0); });
     });
   });
 

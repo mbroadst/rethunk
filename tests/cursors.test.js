@@ -275,6 +275,69 @@ describe('Cursors', function() {
         });
     });
 
+    it('should return an error if the connection dies', function(done) {
+      var conn;
+      r.connect({ host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(conn_) {
+          conn = conn_;
+          expect(conn).to.exist;
+          return test.table.changes().run(conn);
+        })
+        .then(function(feed) {
+          feed.each(function(err, change) {
+            expect(err.message)
+              .to.match(/^The connection was closed before the query could be completed for/);
+            done();
+          });
+
+          // Kill the TCP connection
+          conn.connection.end();
+        });
+    });
+  });
+
+  describe('#eachAsync', function() {
+    it('should work - callback style', function(done) {
+      test.table.run({ cursor: true })
+        .then(function(cursor) {
+          expect(cursor).to.exist;
+
+          var count = 0;
+          var now = Date.now();
+          var timeout = 10;
+          cursor
+            .eachAsync(function(result, onRowFinished) {
+              count++;
+              setTimeout(function() { onRowFinished(); }, timeout);
+            })
+            .then(function() {
+              var elapsed = Date.now() - now;
+              expect(elapsed).to.be.greaterThan(timeout * count);
+              done();
+            });
+        });
+    });
+
+    it('should return an error if the connection dies', function(done) {
+      var conn;
+      r.connect({ host: config.host, port: config.port, authKey: config.authKey })
+        .then(function(conn_) {
+          conn = conn_;
+          expect(conn).to.exist;
+          return test.table.changes().run(conn);
+        })
+        .then(function(feed) {
+          feed.eachAsync(function(change) {})
+            .error(function(err) {
+              expect(err.message)
+                .to.match(/^The connection was closed before the query could be completed for/);
+              done();
+            });
+
+          // Kill the TCP connection
+          conn.connection.end();
+        });
+    });
   });
 
   describe('#toArray', function() {
@@ -329,9 +392,17 @@ describe('Cursors', function() {
           test.feed = feed;
           feed.on('end', function() { done(); });
         })
-        .delay(100)
+        .delay(300)
         .then(function() { return test.feed.close(); });
     });
+
+    it('should still return a promise if the cursor was closed', function() {
+      var cursor;
+      return test.table.changes().run()
+        .then(function(cursor_) { cursor = cursor_; return cursor.close(); })
+        .then(function() { return cursor.close(); });
+    });
+
   });
 
   describe('#EventEmitter (cursor)', function() {

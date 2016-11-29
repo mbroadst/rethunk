@@ -289,6 +289,24 @@ describe('Transformations', function() {
     it('should work (3)', function() {
       return r.union().then(function(result) { expect(result).to.eql([]); });
     });
+
+    it('should work with interleave - 1', function() {
+      return r.expr([0, 1, 2]).union([3, 4, 5], { interleave: false }).run()
+        .then(function(result) { expect(result).to.eql([0, 1, 2, 3, 4, 5]); });
+    });
+
+    it('should work with interleave - 1', function() {
+      return r.expr([{ name: 'Michel' }, { name: 'Sophie' }, { name: 'Laurent' }])
+        .orderBy('name')
+        .union(r.expr([{ name: 'Moo' }, { name: 'Bar' }])
+        .orderBy('name'), { interleave: 'name' }).run()
+        .then(function(result) {
+          expect(result).to.eql([
+            { name: 'Bar' }, { name: 'Laurent' }, { name: 'Michel' },
+            { name: 'Moo' }, { name: 'Sophie' }
+          ]);
+        });
+    });
   });
 
   describe('#sample', function() {

@@ -103,6 +103,21 @@ describe('Writing Data', function() {
             });
         });
       });
+
+      it('should support a conflict method', function() {
+        var savedId;
+        return test.table.insert({ count: 7 }).run()
+          .then(function(result) {
+            savedId = result.generated_keys[0];
+            return test.table.insert({ id: savedId, count: 10 }, {
+              conflict: function(id, oldDoc, newDoc) {
+                return newDoc.merge({ count: newDoc('count').add(oldDoc('count')) });
+              }
+            }).run();
+          })
+          .then(function() { return test.table.get(savedId); })
+          .then(function(result) { expect(result).to.eql({ id: savedId, count: 17 }); });
+      });
     });
 
     describe('dates', function() {

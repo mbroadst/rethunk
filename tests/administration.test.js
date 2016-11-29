@@ -48,11 +48,13 @@ describe('Administration', function() {
       expect(invalid).to.throw(/`rebalance` takes 0 argument, 1 provided/);
     });
 
-    // describe('#r.balance', function() {
-    //   it('should work', function() {
-    //     return r.rebalance().then(function(result) { expect(result.rebalanced).to.equal(1); });
-    //   });
-    // });
+    describe('#r.balance', function() {
+      it('should throw an error', function() {
+        expect(function() {
+          r.rebalance();
+        }).to.throw(/`rebalance` can only be called on a table or a database since 2.3./);
+      });
+    });
   });
 
   describe('#reconfigure', function() {
@@ -74,12 +76,13 @@ describe('Administration', function() {
       expect(invalid).to.throw(/First argument of `reconfigure` must be an object/);
     });
 
-    // describe('#r.reconfigure', function() {
-    //   it('should work', function() {
-    //     return r.reconfigure({ shards: 1, replicas: 1 })
-    //       .then(function(result) { expect(result.reconfigured).to.eql(1); });
-    //   });
-    // });
+    describe('#r.reconfigure', function() {
+      it('should throw an error', function() {
+        expect(function() {
+          r.reconfigure({ shards: 1, replicas: 1 });
+        }).to.throw(/`reconfigure` can only be called on a table or a database since 2.3./);
+      });
+    });
   });
 
   describe('#status', function() {
@@ -120,8 +123,10 @@ describe('Administration', function() {
   });
 
   describe('#r.wait', function() {
-    it('should work', function() {
-      return r.wait().then(function(result) { expect(result).to.have.key('ready'); });
+    it('should throw an error', function() {
+      expect(function() {
+        r.wait();
+      }).to.throw(/`wait` can only be called on a table or a database since 2.3./);
     });
   });
 

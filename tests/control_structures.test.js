@@ -55,27 +55,33 @@ describe('Control Structures', function() {
   describe('#branch', function() {
     it('should work', function() {
       return Promise.all([
-        r.branch(true, 1, 2), r.branch(false, 1, 2)
+        r.branch(true, 1, 2), r.branch(false, 1, 2),
+        r.expr(false).branch('foo', false, 'bar', 'lol'),
+        r.expr(true).branch('foo', false, 'bar', 'lol'),
+        r.expr(false).branch('foo', true, 'bar', 'lol')
       ])
-      .spread(function(r1, r2) {
+      .spread(function(r1, r2, r3, r4, r5) {
         expect(r1).to.equal(1);
         expect(r2).to.equal(2);
+        expect(r3).to.equal('lol');
+        expect(r4).to.equal('foo');
+        expect(r5).to.equal('bar');
       });
     });
 
     it('should throw if no arguments are given', function() {
       var invalid = function() { return r.branch(); };
-      expect(invalid).to.throw(/takes 3 arguments, 0 provided/);
+      expect(invalid).to.throw(/takes at least 3 arguments, 0 provided/);
     });
 
     it('should throw if just one argument is given', function() {
       var invalid = function() { return r.branch(true); };
-      expect(invalid).to.throw(/takes 3 arguments, 1 provided/);
+      expect(invalid).to.throw(/takes at least 3 arguments, 1 provided/);
     });
 
     it('should throw if just two arguments are given', function() {
       var invalid = function() { return r.branch(true, true); };
-      expect(invalid).to.throw(/takes 3 arguments, 2 provided/);
+      expect(invalid).to.throw(/takes at least 3 arguments, 2 provided/);
     });
 
     it('is defined after a term', function() {

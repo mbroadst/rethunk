@@ -1,6 +1,6 @@
 {
   "name": "rethunk",
-  "version": "2.2.0",
+  "version": "2.3.27",
   "description": "A Node.js driver for RethinkDB with promises and a connection pool",
   "main": "lib/index.js",
   "directories": {

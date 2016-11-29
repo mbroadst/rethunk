@@ -76,11 +76,13 @@ describe('Geospacial Commands', function() {
     it('should work', function() {
       return Promise.all([
         r.point(0, 0).distance(r.point(1,1)),
-        r.point(0, 0).distance(r.point(1,1), { unit: 'km' })
+        r.point(0, 0).distance(r.point(1,1), { unit: 'km' }),
+        r.distance(r.point(0, 0), r.point(1,1))
       ])
-      .spread(function(r1, r2) {
+      .spread(function(r1, r2, r3) {
         expect(Math.floor(r1)).to.equal(156899);
         expect(Math.floor(r2)).to.equal(156);
+        expect(Math.floor(r3)).to.equal(156899);
       });
     });
 
