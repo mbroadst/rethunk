@@ -296,7 +296,7 @@ describe('Accessing ReQL', function() {
     });
 
     it('should support `includeStates`', function(done) {
-      return generateData(test)
+      generateData(test)
         .then(function() {
           return test.table.orderBy({ index: 'id' })
             .limit(10).changes({ includeStates: true, includeInitial: true });
@@ -314,7 +314,7 @@ describe('Accessing ReQL', function() {
     });
 
     it('should support `includeInitial`', function(done) {
-      return generateData(test)
+      generateData(test)
         .then(function() {
           return test.table.orderBy({ index: 'id' }).changes({ includeInitial: true });
         })
@@ -333,7 +333,7 @@ describe('Accessing ReQL', function() {
     });
 
     it('should support `on`', function(done) {
-      return generateData(test)
+      generateData(test)
         .then(function() { return test.table.changes(); })
         .then(function(feed) {
           var i = 0;
@@ -354,7 +354,7 @@ describe('Accessing ReQL', function() {
 
 
     it('events should not return an error if the feed is closed (1)', function(done) {
-      return test.table.get(1).changes()
+      test.table.get(1).changes()
         .then(function(feed) {
           feed.each(function(err, result) {
             if (err) return done(err);
@@ -372,7 +372,7 @@ describe('Accessing ReQL', function() {
     });
 
     it('events should not return an error if the feed is closed (2)', function(done) {
-      return generateData(test)
+      generateData(test)
         .then(function() { return test.table.changes(); })
         .then(function(feed) {
           var count = 0;

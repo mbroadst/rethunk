@@ -32,7 +32,7 @@ conditionalDescribe('Streams', function() {
 
     it('arrays should return a stream', function(done) {
       var data = [10, 11, 12, 13, 14, 15, 16];
-      return r.expr(data).run({ stream: true })
+      r.expr(data).run({ stream: true })
         .then(function(stream) {
           expect(stream).to.exist;
           expect(stream).to.be.an.instanceOf(Readable);
@@ -51,7 +51,7 @@ conditionalDescribe('Streams', function() {
 
     it('changes() should return a stream', function(done) {
       var data = [{}, {}, {}, {}];
-      return test.table.changes().run({ stream: true })
+      test.table.changes().run({ stream: true })
         .then(function(stream) {
           expect(stream).to.exist;
           expect(stream).to.be.an.instanceOf(Readable);
@@ -67,7 +67,7 @@ conditionalDescribe('Streams', function() {
     });
 
     it('get().changes() should return a stream', function(done) {
-      return test.table.get(1).changes().run({ stream: true })
+      test.table.get(1).changes().run({ stream: true })
         .then(function(stream) {
           expect(stream).to.exist;
           expect(stream).to.be.an.instanceOf(Readable);
@@ -97,7 +97,7 @@ conditionalDescribe('Streams', function() {
     });
 
     it('test flowing - event data', function(done) {
-      return test.table.insert([{}, {}, {}])
+      test.table.insert([{}, {}, {}])
         .then(function() {
           return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
         })
@@ -117,7 +117,7 @@ conditionalDescribe('Streams', function() {
     });
 
     it('should return a document with `read` when the stream is readable', function(done) {
-      return test.table.insert([{}, {}, {}])
+      test.table.insert([{}, {}, {}])
         .then(function() {
           return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
         })
@@ -144,7 +144,7 @@ conditionalDescribe('Streams', function() {
     });
 
     it('Test flowing - event data', function(done) {
-      return test.table.insert([{}, {}, {}])
+      test.table.insert([{}, {}, {}])
         .then(function() {
           return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
         })
@@ -168,7 +168,7 @@ conditionalDescribe('Streams', function() {
     });
 
     it('should not read null values', function(done) {
-      return test.table.insert([
+      test.table.insert([
           {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
           {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         ])
@@ -218,7 +218,7 @@ conditionalDescribe('Streams', function() {
       afterEach(function() { return test.cleanTables(); });
 
       it('should work', function(done) {
-        return test.table.insert([{}, {}, {}])
+        test.table.insert([{}, {}, {}])
           .then(function() {
             return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
           })
@@ -245,7 +245,7 @@ conditionalDescribe('Streams', function() {
       });
 
       it('should work with grouped data', function(done) {
-        return test.table.insert([{}, {}, {}])
+        test.table.insert([{}, {}, {}])
           .then(function() {
             return r.connect({ host: config.host, port: config.port, authKey: config.authKey });
           })

@@ -97,7 +97,7 @@ describe('Cursors', function() {
           });
       }
 
-      return test.table.run({ cursor: true })
+      test.table.run({ cursor: true })
         .then(function(cursor) {
           expect(cursor).to.exist;
           return processData(cursor);
@@ -119,7 +119,7 @@ describe('Cursors', function() {
           });
       }
 
-      return r.connect({ host: config.host, port: config.port, authKey: config.authKey })
+      r.connect({ host: config.host, port: config.port, authKey: config.authKey })
         .then(function(connection) {
           expect(connection).to.exist;
           return test.table.run(connection, { cursor: true, maxBatchRows: 10 });
@@ -145,7 +145,7 @@ describe('Cursors', function() {
           });
       }
 
-      return r.connect({ host: config.host, port: config.port, authKey: config.authKey })
+      r.connect({ host: config.host, port: config.port, authKey: config.authKey })
         .then(function(connection) {
           expect(connection).to.exist;
 
@@ -179,7 +179,7 @@ describe('Cursors', function() {
           });
       }
 
-      return test.table.changes()
+      test.table.changes()
         .then(function(feed) {
           return Promise.all([
             test.table.update({ foo: r.now() }),
@@ -211,7 +211,7 @@ describe('Cursors', function() {
 
   describe('#each', function() {
     it('should work', function(done) {
-      return test.table.run({ cursor: true })
+      test.table.run({ cursor: true })
         .then(function(cursor) {
           var count = 0;
           cursor.each(function(err, result) { count++; if (count === 100) done(); });
@@ -219,14 +219,14 @@ describe('Cursors', function() {
     });
 
     it('should call the onFinish callback', function(done) {
-      return test.table.run({ cursor: true })
+      test.table.run({ cursor: true })
         .then(function(cursor) {
           cursor.each(function(err, result) {}, done);
         });
     });
 
     it('should call the error callback', function(done) {
-      return test.table.run({ cursor: true })
+      test.table.run({ cursor: true })
         .then(function(cursor) {
           var count = 0;
           cursor.each(function(err, result) {
@@ -241,7 +241,7 @@ describe('Cursors', function() {
 
     it('should not return an error if the feed is closed (1)', function(done) {
       var count = 0;
-      return test.table.changes()
+      test.table.changes()
         .then(function(feed) {
           test.feed = feed;
           return test.table.limit(2).update({ foo: r.now() });
@@ -259,7 +259,7 @@ describe('Cursors', function() {
 
     it('should not return an error if the feed is closed (2)', function(done) {
       var count = 0;
-      return test.table.changes()
+      test.table.changes()
         .then(function(feed) {
           test.feed = feed;
           return test.table.limit(2).update({ foo: r.now() });
@@ -324,7 +324,7 @@ describe('Cursors', function() {
     });
 
     it('should work on feed with events', function(done) {
-      return test.table.changes()
+      test.table.changes()
         .then(function(feed) {
           test.feed = feed;
           feed.on('end', function() { done(); });
@@ -349,7 +349,7 @@ describe('Cursors', function() {
     // });
 
     it('`on` should work on cursor - a `end` event should be eventually emitted on a cursor', function(done) {
-      return test.table.run({ cursor: true })
+      test.table.run({ cursor: true })
         .then(function(cursor) {
           cursor.on('end', function() { done(); });
           setTimeout(function() {
