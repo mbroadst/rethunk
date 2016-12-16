@@ -1,6 +1,6 @@
 {
   "name": "rethunk",
-  "version": "2.3.27",
+  "version": "2.3.28",
   "description": "A Node.js driver for RethinkDB with promises and a connection pool",
   "main": "lib/index.js",
   "directories": {
@@ -24,7 +24,7 @@
   "bugs": {
     "url": "https://github.com/mbroadst/rethunk/issues"
   },
-  "dependencies":{
+  "dependencies": {
     "bluebird": "^3.4.6",
     "double-ended-queue": "^2.1.0-0"
   },
